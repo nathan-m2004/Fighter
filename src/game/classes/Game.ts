@@ -24,28 +24,42 @@ export default class Game {
         for (let i = 0; i < this.map.objects.length; i++) {
             const object = this.map.objects[i];
             const collision = rectangleRectangle(this.player, object);
-            if (collision === "top") {
-                this.player.position.y = object.position.y - this.player.size.height;
+
+            if (collision === "top" && !object.canGoInside) {
                 if (!this.player.onGround) {
                     this.player.velocity.y = 0;
-                    this.player.jump.jumpTimes = 0;
-                    this.player.playerMovement.dashCount = 0;
                 }
+                this.player.position.y = object.position.y - this.player.size.height;
+                this.player.jump.jumpTimes = 0;
+                this.player.playerMovement.dashCount = 0;
                 this.player.onGround = true;
             } else {
                 this.player.onGround = false;
             }
-            if (collision === "bottom") {
+            if (collision === "bottom" && !object.canGoInside) {
                 this.player.position.y = object.position.y + object.size.height;
                 this.player.velocity.y = 0;
             }
-            if (collision === "left") {
+            if (collision === "left" && !object.canGoInside) {
                 this.player.position.x = object.position.x - this.player.size.width;
                 this.player.velocity.x = 0;
             }
-            if (collision === "right") {
+            if (collision === "right" && !object.canGoInside) {
                 this.player.position.x = object.position.x + object.size.width;
                 this.player.velocity.x = 0;
+            }
+
+            if (
+                collision === "top" &&
+                object.canGoInside &&
+                this.player.velocity.y >= 0 &&
+                !this.player.keys.down.pressed
+            ) {
+                this.player.velocity.y = 0;
+                this.player.position.y = object.position.y - this.player.size.height;
+                this.player.jump.jumpTimes = 0;
+                this.player.playerMovement.dashCount = 0;
+                this.player.onGround = true;
             }
 
             this.context.fillStyle = "black"; // Set a color for the text
