@@ -4,6 +4,7 @@ export default class MapObject {
     position: { x: number; y: number };
     size: { width: number; height: number };
     color: string;
+    canGoInside: boolean;
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
@@ -18,6 +19,7 @@ export default class MapObject {
         this.color = "white";
         this.position = { x: x, y: y };
         this.size = { width: width, height: height };
+        this.canGoInside = false;
     }
     draw() {
         this.context.fillStyle = this.color;
