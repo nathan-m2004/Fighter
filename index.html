@@ -1,13 +1,13 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
-
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-    <script type="module" src="/src/renderer.ts"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Hello World!</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self'; style-src 'self' 'unsafe-inline'" />
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <script type="module" src="/src/game/index.ts"></script>
+        <script type="module" src="/src/renderer.ts"></script>
+    </body>
 </html>
