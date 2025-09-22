@@ -39,7 +39,7 @@ export default class Player {
         this.color = "red";
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
-        this.size = { width: 100, height: 100 };
+        this.size = { width: 80, height: 80 };
         this.gravity = gravity;
         this.jump = { jumpForce: 95, jumpTimes: 0, framePressed: 0, jumpDelay: 300 };
         this.playerMovement = {
@@ -52,7 +52,7 @@ export default class Player {
             stoppingLengthFrames: 62,
             dashing: false,
             dashCount: 0,
-            dashMax: 2,
+            dashMax: 1,
             dashForce: 150,
             dashFrameStart: 0,
             dashLenghtFrames: 250,
@@ -217,20 +217,13 @@ export default class Player {
 
         this.context.fillStyle = "white"; // Set a color for the text
         this.context.font = "16px Arial"; // Set the font and size
-        const text = `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.onGround})`;
-        // Position the text within the rectangle
-        this.context.fillText(text, this.position.x + 10, this.position.y + 20);
         this.context.fillText(
-            `Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`,
-            this.position.x + 10,
-            this.position.y + 40
+            `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.onGround})`,
+            10,
+            20
         );
-        this.context.fillText(
-            `stopping: (${this.playerMovement.stopping})`,
-            this.position.x + 10,
-            this.position.y + 60
-        );
-        this.context.fillText(`dashing: (${this.playerMovement.dashing})`, this.position.x + 10, this.position.y + 80);
-        this.context.fillText(`left: (${this.keys.left.pressed})`, this.position.x + 10, this.position.y + 100);
+        this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
+        this.context.fillText(`Stopping: (${this.playerMovement.stopping})`, 10, 60);
+        this.context.fillText(`Dashing: (${this.playerMovement.dashing})`, 10, 80);
     }
 }
