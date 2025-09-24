@@ -1,5 +1,6 @@
+import Fighter from "../characters/Fighter";
+import { Characters } from "../characters/types";
 import { rectangleRectangle } from "../collisions";
-import Background from "./Background";
 import GameMap from "./Map";
 import Player from "./Player";
 
@@ -8,8 +9,9 @@ export default class Game {
     context: CanvasRenderingContext2D;
     frames: { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
     map: GameMap;
-    player: Player;
+    players: Characters[];
     gravity: number;
+    dummy: Player;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, map: GameMap) {
         this.canvas = canvas;
         this.context = context;
@@ -18,56 +20,59 @@ export default class Game {
         this.map = map;
 
         this.gravity = 15;
-        this.player = new Player(this.canvas, this.context, 500, 100, this.gravity);
+        this.players = [new Fighter(this.canvas, this.context, 500, 100, this.gravity)];
+        let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
+        dummy.dummy = true;
+        this.players.push(dummy);
     }
     collisionPlayerObject() {
-        for (let i = 0; i < this.map.objects.length; i++) {
-            const object = this.map.objects[i];
-            const collision = rectangleRectangle(this.player, object);
+        this.players.forEach((player) => {
+            player.onGround = false;
 
-            if (collision === "top" && !object.canGoInside) {
-                if (!this.player.onGround) {
-                    this.player.velocity.y = 0;
+            for (let i = 0; i < this.map.objects.length; i++) {
+                const object = this.map.objects[i];
+                const collision = rectangleRectangle(player, object);
+
+                if (collision === "top" && !object.canGoInside) {
+                    player.velocity.y = 0;
+                    player.position.y = object.position.y - player.size.height;
+                    player.jump.jumpTimes = 0;
+                    player.playerMovement.dashCount = 0;
+                    player.onGround = true;
                 }
-                this.player.position.y = object.position.y - this.player.size.height;
-                this.player.jump.jumpTimes = 0;
-                this.player.playerMovement.dashCount = 0;
-                this.player.onGround = true;
-            } else {
-                this.player.onGround = false;
-            }
-            if (collision === "bottom" && !object.canGoInside) {
-                this.player.position.y = object.position.y + object.size.height;
-                this.player.velocity.y = 0;
-            }
-            if (collision === "left" && !object.canGoInside) {
-                this.player.position.x = object.position.x - this.player.size.width;
-                this.player.velocity.x = 0;
-            }
-            if (collision === "right" && !object.canGoInside) {
-                this.player.position.x = object.position.x + object.size.width;
-                this.player.velocity.x = 0;
-            }
+                if (collision === "bottom" && !object.canGoInside) {
+                    player.position.y = object.position.y + object.size.height;
+                    player.velocity.y = 0;
+                }
+                if (collision === "left" && !object.canGoInside) {
+                    player.position.x = object.position.x - player.size.width;
+                    player.velocity.x = 0;
+                }
+                if (collision === "right" && !object.canGoInside) {
+                    player.position.x = object.position.x + object.size.width;
+                    player.velocity.x = 0;
+                }
 
-            if (
-                collision === "top" &&
-                object.canGoInside &&
-                this.player.velocity.y >= 0 &&
-                !this.player.keys.down.pressed
-            ) {
-                this.player.velocity.y = 0;
-                this.player.position.y = object.position.y - this.player.size.height;
-                this.player.jump.jumpTimes = 0;
-                this.player.playerMovement.dashCount = 0;
-                this.player.onGround = true;
-            }
+                if (
+                    collision === "top" &&
+                    object.canGoInside &&
+                    player.velocity.y >= 0 &&
+                    player.keys.down.timeHoldingFrames <= player.keys.down.delayToLeavePlataform
+                ) {
+                    player.velocity.y = 0;
+                    player.position.y = object.position.y - player.size.height;
+                    player.jump.jumpTimes = 0;
+                    player.playerMovement.dashCount = 0;
+                    player.onGround = true;
+                }
 
-            this.context.fillStyle = "black"; // Set a color for the text
-            this.context.font = "16px Arial"; // Set the font and size
-            const text = `${collision}`;
-            // Position the text within the rectangle
-            this.context.fillText(text, object.position.x + 10, object.position.y + 20);
-        }
+                this.context.fillStyle = "black"; // Set a color for the text
+                this.context.font = "16px Arial"; // Set the font and size
+                const text = `${collision}`;
+                // Position the text within the rectangle
+                this.context.fillText(text, object.position.x + 10, object.position.y + 20);
+            }
+        });
     }
     draw() {
         this.frames.deltaTime = (this.frames.currentFrame - this.frames.lastFrame) / 100;
@@ -77,11 +82,20 @@ export default class Game {
 
         this.map.draw();
 
-        this.player.frames = this.frames;
         this.collisionPlayerObject();
-        this.player.handleMovement();
-        this.player.physics();
-        this.player.draw();
+        this.players.forEach((player) => {
+            if (player.dummy) {
+                player.frames = this.frames;
+                player.physics();
+                player.draw();
+                return;
+            }
+            player.frames = this.frames;
+            player.handleMovement();
+            player.handleAttacks();
+            player.physics();
+            player.draw();
+        });
 
         this.frames.animationFrame = window.requestAnimationFrame((currentFrame) => {
             this.frames.currentFrame = currentFrame;
