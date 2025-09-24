@@ -1,3 +1,23 @@
+type MovementState = {
+    canMove: boolean;
+    speed: number;
+    direction: string;
+    maxSpeed: number;
+    stopping: boolean;
+    stopped: boolean;
+    stoppingPower: number;
+    stoppingFrameStart: number;
+    stoppingLengthFrames: number;
+    dashing: boolean;
+    dashCount: number;
+    dashMax: number;
+    dashForce: number;
+    dashFrameStart: number;
+    dashLenghtFrames: number;
+};
+
+type InputState = { key: string; pressed: boolean; startFramehold: number; timeHoldingFrames: number };
+
 export default class Player {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
@@ -9,28 +29,17 @@ export default class Player {
     onGround: boolean;
     frames: { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
     jump: { jumpForce: number; jumpTimes: number; framePressed: number; jumpDelay: number };
-    playerMovement: {
-        speed: number;
-        maxSpeed: number;
-        stopping: boolean;
-        stopped: boolean;
-        stoppingPower: number;
-        stoppingFrameStart: number;
-        stoppingLengthFrames: number;
-        dashing: boolean;
-        dashCount: number;
-        dashMax: number;
-        dashForce: number;
-        dashFrameStart: number;
-        dashLenghtFrames: number;
-    };
+    playerMovement: MovementState;
     keys: {
-        left: { key: string; pressed: boolean };
-        right: { key: string; pressed: boolean };
-        down: { key: string; pressed: boolean };
-        dash: { key: string; pressed: boolean };
-        jump: { key: string; pressed: boolean };
+        lightAttack: InputState;
+        left: InputState;
+        right: InputState;
+        up: InputState;
+        down: InputState & { delayToLeavePlataform: number };
+        dash: InputState;
+        jump: InputState;
     };
+    dummy: boolean;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -40,9 +49,12 @@ export default class Player {
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
+
         this.gravity = gravity;
         this.jump = { jumpForce: 95, jumpTimes: 0, framePressed: 0, jumpDelay: 300 };
         this.playerMovement = {
+            canMove: true,
+            direction: undefined,
             speed: 50,
             maxSpeed: 80,
             stopping: false,
@@ -59,18 +71,25 @@ export default class Player {
         };
 
         this.onGround = false;
+        this.dummy = false;
 
         this.keys = {
-            left: { key: "KeyA", pressed: false },
-            right: { key: "KeyD", pressed: false },
-            dash: { key: "ShiftLeft", pressed: false },
-            down: { key: "KeyS", pressed: false },
-            jump: { key: "Space", pressed: false },
+            left: { key: "KeyA", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            right: { key: "KeyD", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            dash: { key: "ShiftLeft", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            up: { key: "KeyW", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            down: { key: "KeyS", pressed: false, startFramehold: 0, timeHoldingFrames: 0, delayToLeavePlataform: 80 },
+            jump: { key: "Space", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            lightAttack: { key: "KeyJ", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
-                    action.pressed = true;
+                    if (!action.pressed) {
+                        action.timeHoldingFrames = 0;
+                        action.startFramehold = this.frames.currentFrame;
+                        action.pressed = true;
+                    }
                 }
             });
         });
@@ -78,11 +97,22 @@ export default class Player {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
                     action.pressed = false;
+                    action.timeHoldingFrames = 0;
                 }
             });
         });
     }
     handleMovement() {
+        Object.values(this.keys).forEach((action) => {
+            if (action.pressed) {
+                action.timeHoldingFrames = this.frames.currentFrame - action.startFramehold;
+            }
+        });
+
+        if (!this.playerMovement.canMove) {
+            return;
+        }
+
         // jump
         if (
             this.keys.jump.pressed === true &&
@@ -146,6 +176,7 @@ export default class Player {
                 return;
             } else {
                 this.velocity.x -= this.playerMovement.speed * this.frames.deltaTime;
+                this.playerMovement.direction = "left";
                 if (this.velocity.x <= -this.playerMovement.maxSpeed) {
                     this.velocity.x = -this.playerMovement.maxSpeed;
                 }
@@ -158,6 +189,7 @@ export default class Player {
                 return;
             } else {
                 this.velocity.x += this.playerMovement.speed * this.frames.deltaTime;
+                this.playerMovement.direction = "right";
                 if (this.velocity.x >= this.playerMovement.maxSpeed) {
                     this.velocity.x = this.playerMovement.maxSpeed;
                 }
@@ -204,7 +236,7 @@ export default class Player {
         }
     }
     physics() {
-        if (!this.onGround && !this.playerMovement.dashing) {
+        if (!this.playerMovement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
         }
 
@@ -213,6 +245,9 @@ export default class Player {
     }
     draw() {
         this.context.fillStyle = this.color;
+        if (this.playerMovement.dashing) {
+            this.context.fillStyle = "green";
+        }
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
         this.context.fillStyle = "white"; // Set a color for the text
@@ -225,5 +260,6 @@ export default class Player {
         this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
         this.context.fillText(`Stopping: (${this.playerMovement.stopping})`, 10, 60);
         this.context.fillText(`Dashing: (${this.playerMovement.dashing})`, 10, 80);
+        this.context.fillText(`Direction: (${this.playerMovement.direction})`, 10, 100);
     }
 }
