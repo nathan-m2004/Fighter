@@ -1,45 +1,35 @@
-type MovementState = {
-    canMove: boolean;
-    speed: number;
-    direction: string;
-    maxSpeed: number;
-    stopping: boolean;
-    stopped: boolean;
-    stoppingPower: number;
-    stoppingFrameStart: number;
-    stoppingLengthFrames: number;
-    dashing: boolean;
-    dashCount: number;
-    dashMax: number;
-    dashForce: number;
-    dashFrameStart: number;
-    dashLenghtFrames: number;
-};
+import Movement from "./Movement";
 
-type InputState = { key: string; pressed: boolean; startFramehold: number; timeHoldingFrames: number };
+export type InputState = { key: string; pressed: boolean; startFramehold: number; timeHoldingFrames: number };
+
+export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
+
+export type Velocity = { x: number; y: number };
+
+export type Position = { x: number; y: number };
+
+export type Keys = {
+    lightAttack: InputState;
+    left: InputState;
+    right: InputState;
+    up: InputState;
+    down: InputState & { delayToLeavePlataform: number };
+    dash: InputState;
+    jump: InputState;
+};
 
 export default class Player {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     color: string;
-    position: { x: number; y: number };
-    velocity: { x: number; y: number };
+    position: Position;
+    velocity: Velocity;
     gravity: number;
     size: { width: number; height: number };
-    onGround: boolean;
-    frames: { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
-    jump: { jumpForce: number; jumpTimes: number; framePressed: number; jumpDelay: number };
-    playerMovement: MovementState;
-    keys: {
-        lightAttack: InputState;
-        left: InputState;
-        right: InputState;
-        up: InputState;
-        down: InputState & { delayToLeavePlataform: number };
-        dash: InputState;
-        jump: InputState;
-    };
+    frames: FrameState;
+    keys: Keys;
     dummy: boolean;
+    movement: Movement;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -51,26 +41,8 @@ export default class Player {
         this.size = { width: 80, height: 80 };
 
         this.gravity = gravity;
-        this.jump = { jumpForce: 95, jumpTimes: 0, framePressed: 0, jumpDelay: 300 };
-        this.playerMovement = {
-            canMove: true,
-            direction: undefined,
-            speed: 50,
-            maxSpeed: 80,
-            stopping: false,
-            stopped: true,
-            stoppingPower: 22,
-            stoppingFrameStart: 0,
-            stoppingLengthFrames: 62,
-            dashing: false,
-            dashCount: 0,
-            dashMax: 1,
-            dashForce: 150,
-            dashFrameStart: 0,
-            dashLenghtFrames: 250,
-        };
+        this.movement = new Movement();
 
-        this.onGround = false;
         this.dummy = false;
 
         this.keys = {
@@ -102,141 +74,16 @@ export default class Player {
             });
         });
     }
-    handleMovement() {
+    countTimeHoldingKey() {
         Object.values(this.keys).forEach((action) => {
             if (action.pressed) {
                 action.timeHoldingFrames = this.frames.currentFrame - action.startFramehold;
             }
         });
-
-        if (!this.playerMovement.canMove) {
-            return;
-        }
-
-        // jump
-        if (
-            this.keys.jump.pressed === true &&
-            this.jump.jumpTimes < 2 &&
-            this.frames.currentFrame - this.jump.framePressed >= this.jump.jumpDelay
-        ) {
-            this.jump.framePressed = this.frames.currentFrame;
-            this.velocity.y = 0;
-            this.velocity.y = -this.jump.jumpForce;
-            this.jump.jumpTimes++;
-        }
-
-        // dash
-        if (
-            this.keys.dash.pressed &&
-            !this.playerMovement.dashing &&
-            this.playerMovement.dashCount < this.playerMovement.dashMax
-        ) {
-            if (!this.keys.left.pressed && !this.keys.right.pressed) {
-                this.playerMovement.dashing = true;
-                this.playerMovement.dashFrameStart = this.frames.currentFrame;
-
-                this.velocity.y = 0;
-                this.playerMovement.dashCount++;
-            }
-            if (this.keys.left.pressed) {
-                this.playerMovement.dashing = true;
-                this.playerMovement.dashFrameStart = this.frames.currentFrame;
-
-                this.velocity.y = 0;
-                this.velocity.x = -this.playerMovement.dashForce;
-                this.playerMovement.dashCount++;
-            }
-            if (this.keys.right.pressed) {
-                this.playerMovement.dashing = true;
-                this.playerMovement.dashFrameStart = this.frames.currentFrame;
-
-                this.velocity.y = 0;
-                this.velocity.x = this.playerMovement.dashForce;
-                this.playerMovement.dashCount++;
-            }
-        }
-        if (
-            this.frames.currentFrame - this.playerMovement.dashFrameStart >= this.playerMovement.dashLenghtFrames / 2 &&
-            this.playerMovement.dashing
-        ) {
-            this.velocity.x = 0;
-        }
-        if (
-            this.frames.currentFrame - this.playerMovement.dashFrameStart >= this.playerMovement.dashLenghtFrames &&
-            this.playerMovement.dashing
-        ) {
-            this.playerMovement.dashing = false;
-        }
-
-        // side
-        if (this.keys.left.pressed && !this.playerMovement.dashing) {
-            if (this.velocity.x > 0 && !this.playerMovement.stopping) {
-                this.playerMovement.stoppingFrameStart = this.frames.currentFrame;
-                this.playerMovement.stopping = true;
-                return;
-            } else {
-                this.velocity.x -= this.playerMovement.speed * this.frames.deltaTime;
-                this.playerMovement.direction = "left";
-                if (this.velocity.x <= -this.playerMovement.maxSpeed) {
-                    this.velocity.x = -this.playerMovement.maxSpeed;
-                }
-            }
-        }
-        if (this.keys.right.pressed && !this.playerMovement.dashing) {
-            if (this.velocity.x < 0 && !this.playerMovement.stopping) {
-                this.playerMovement.stoppingFrameStart = this.frames.currentFrame;
-                this.playerMovement.stopping = true;
-                return;
-            } else {
-                this.velocity.x += this.playerMovement.speed * this.frames.deltaTime;
-                this.playerMovement.direction = "right";
-                if (this.velocity.x >= this.playerMovement.maxSpeed) {
-                    this.velocity.x = this.playerMovement.maxSpeed;
-                }
-            }
-        }
-
-        // down
-        if (
-            this.keys.down.pressed &&
-            !this.onGround &&
-            this.frames.currentFrame - this.jump.framePressed >= this.jump.jumpDelay
-        ) {
-            if (this.velocity.y < 0) {
-                this.velocity.y = 0;
-            } else {
-                this.velocity.y += this.playerMovement.speed * this.frames.deltaTime;
-            }
-        }
-
-        // side movement stopping logic
-        if (this.velocity.x !== 0) {
-            this.playerMovement.stopped = false;
-        }
-        if (
-            !this.keys.left.pressed &&
-            !this.keys.right.pressed &&
-            !this.playerMovement.stopping &&
-            !this.playerMovement.stopped
-        ) {
-            this.playerMovement.stopping = true;
-            this.playerMovement.stoppingFrameStart = this.frames.currentFrame;
-        }
-        if (this.playerMovement.stopping) {
-            this.velocity.x /= this.playerMovement.stoppingPower * this.frames.deltaTime;
-        }
-        if (
-            this.playerMovement.stoppingLengthFrames <=
-                this.frames.currentFrame - this.playerMovement.stoppingFrameStart &&
-            this.playerMovement.stopping
-        ) {
-            this.playerMovement.stopping = false;
-            this.playerMovement.stopped = true;
-            this.velocity.x = 0;
-        }
     }
+
     physics() {
-        if (!this.playerMovement.dashing) {
+        if (!this.movement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
         }
 
@@ -245,7 +92,7 @@ export default class Player {
     }
     draw() {
         this.context.fillStyle = this.color;
-        if (this.playerMovement.dashing) {
+        if (this.movement.dashing) {
             this.context.fillStyle = "green";
         }
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
@@ -253,13 +100,13 @@ export default class Player {
         this.context.fillStyle = "white"; // Set a color for the text
         this.context.font = "16px Arial"; // Set the font and size
         this.context.fillText(
-            `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.onGround})`,
+            `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
             10,
             20
         );
         this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
-        this.context.fillText(`Stopping: (${this.playerMovement.stopping})`, 10, 60);
-        this.context.fillText(`Dashing: (${this.playerMovement.dashing})`, 10, 80);
-        this.context.fillText(`Direction: (${this.playerMovement.direction})`, 10, 100);
+        this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
+        this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
+        this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
     }
 }
