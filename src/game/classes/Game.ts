@@ -27,7 +27,7 @@ export default class Game {
     }
     collisionPlayerObject() {
         this.players.forEach((player) => {
-            player.onGround = false;
+            player.movement.onGround = false;
 
             for (let i = 0; i < this.map.objects.length; i++) {
                 const object = this.map.objects[i];
@@ -36,9 +36,9 @@ export default class Game {
                 if (collision === "top" && !object.canGoInside) {
                     player.velocity.y = 0;
                     player.position.y = object.position.y - player.size.height;
-                    player.jump.jumpTimes = 0;
-                    player.playerMovement.dashCount = 0;
-                    player.onGround = true;
+                    player.movement.jumpTimes = 0;
+                    player.movement.dashCount = 0;
+                    player.movement.onGround = true;
                 }
                 if (collision === "bottom" && !object.canGoInside) {
                     player.position.y = object.position.y + object.size.height;
@@ -61,9 +61,9 @@ export default class Game {
                 ) {
                     player.velocity.y = 0;
                     player.position.y = object.position.y - player.size.height;
-                    player.jump.jumpTimes = 0;
-                    player.playerMovement.dashCount = 0;
-                    player.onGround = true;
+                    player.movement.jumpTimes = 0;
+                    player.movement.dashCount = 0;
+                    player.movement.onGround = true;
                 }
 
                 this.context.fillStyle = "black"; // Set a color for the text
@@ -91,7 +91,7 @@ export default class Game {
                 return;
             }
             player.frames = this.frames;
-            player.handleMovement();
+            player.movement.update(player.keys, player.frames, player.velocity);
             player.handleAttacks();
             player.physics();
             player.draw();

@@ -97,7 +97,7 @@ export default class Fighter extends Player {
         if (
             this.keys.down.pressed &&
             this.keys.left.pressed &&
-            this.onGround &&
+            this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -116,7 +116,7 @@ export default class Fighter extends Player {
         if (
             this.keys.down.pressed &&
             this.keys.right.pressed &&
-            this.onGround &&
+            this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -134,7 +134,7 @@ export default class Fighter extends Player {
         // DOWN IN THE GROUND
         if (
             this.keys.down.pressed &&
-            this.onGround &&
+            this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -168,7 +168,7 @@ export default class Fighter extends Player {
         if (
             this.keys.left.pressed &&
             this.keys.down.pressed &&
-            !this.onGround &&
+            !this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -213,7 +213,7 @@ export default class Fighter extends Player {
         if (
             this.keys.right.pressed &&
             this.keys.down.pressed &&
-            !this.onGround &&
+            !this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -256,7 +256,7 @@ export default class Fighter extends Player {
         // DOWN IN THE AIR
         if (
             this.keys.down.pressed &&
-            !this.onGround &&
+            !this.movement.onGround &&
             this.keys.lightAttack.pressed &&
             this.attack.canAttack &&
             !this.attack.attacking &&
@@ -279,7 +279,7 @@ export default class Fighter extends Player {
             this.frames.currentFrame - this.attack.attackFrameStart >= this.attack.attackCooldown
         ) {
             this.attack.attacking = true;
-            this.attack.list.lightAttack.direction = this.playerMovement.direction;
+            this.attack.list.lightAttack.direction = this.movement.direction;
             this.attack.list.lightAttack.attacking = true;
             this.attack.list.lightAttack.frameStart = this.frames.currentFrame;
             this.attack.attackFrameStart = this.attack.list.lightAttack.frameStart;
@@ -294,7 +294,7 @@ export default class Fighter extends Player {
                 this.attack.list.lightAttack.frameLength / 2;
 
             if (halfOfAnimation) {
-                this.playerMovement.canMove = true;
+                this.movement.canMove = true;
                 if (
                     this.attack.list.lightAttack.direction === "downGround" ||
                     this.attack.list.lightAttack.direction === "downRightGround" ||
@@ -304,7 +304,7 @@ export default class Fighter extends Player {
                     this.velocity.x = 0;
                 }
             } else {
-                this.playerMovement.canMove = false;
+                this.movement.canMove = false;
             }
 
             const endOfAnimation =
