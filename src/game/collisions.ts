@@ -40,5 +40,3 @@ export function rectangleRectangle(objectA: any, objectB: any) {
         return false;
     }
 }
-
-// USAR VETORES PARA SABER A DIREÇÃO DA COLISÃO
