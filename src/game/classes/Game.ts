@@ -21,9 +21,22 @@ export default class Game {
 
         this.gravity = 15;
         this.players = [new Fighter(this.canvas, this.context, 500, 100, this.gravity)];
-        let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
-        dummy.dummy = true;
-        this.players.push(dummy);
+        //let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
+        //dummy.dummy = true;
+        //this.players.push(dummy);
+
+        window.addEventListener("gamepadconnected", (event) => {
+            const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
+            newPlayer.gamepad.index = event.gamepad.index;
+            this.players.push(newPlayer);
+        });
+        window.addEventListener("gamepaddisconnected", (event) => {
+            for (let i = 0; i < this.players.length; i++) {
+                if (this.players[i].gamepad.index === event.gamepad.index) {
+                    this.players.splice(i, 1);
+                }
+            }
+        });
     }
     collisionPlayerObject() {
         this.players.forEach((player) => {
@@ -92,6 +105,7 @@ export default class Game {
             }
             player.frames = this.frames;
             player.movement.update(player.keys, player.frames, player.velocity);
+            player.gamepadUpdate();
             player.countTimeHoldingKey();
             player.handleAttacks();
             player.physics();
