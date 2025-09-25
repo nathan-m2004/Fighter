@@ -15,8 +15,8 @@ export type AttackStates = {
             y: { current: number; offset: number };
             width: number;
             height: number;
-            direction: string;
-            keys: { pressed: InputState[]; notPressed: InputState[] };
+            directional: { bool: boolean; direction: string };
+            keys: { pressed: InputState[]; sideKeysPressed: boolean; notPressed: InputState[] };
             onGround: { checkFor: boolean; noCheck: boolean };
             attacking: boolean;
             attackKey: InputState;
