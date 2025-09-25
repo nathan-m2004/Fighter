@@ -1,14 +1,33 @@
+import { InputState } from "../classes/Player";
 import Fighter from "./Fighter";
 
 export type Characters = Fighter;
 
-type AttackList = { attacking: boolean; direction: string; frameStart: number; frameLength: number };
 export type AttackStates = {
-    list: { [key: string]: AttackList };
     size: number;
     canAttack: boolean;
     attackCooldown: number;
     attackFrameStart: number;
     attacking: boolean;
-    hitbox: { show: boolean; map: { [key: string]: { x: number; y: number; width: number; height: number } } };
+    map: {
+        [key: string]: {
+            x: { current: number; offset: number };
+            y: { current: number; offset: number };
+            width: number;
+            height: number;
+            directional: { bool: boolean; direction: string };
+            keys: { pressed: InputState[]; sideKeysPressed: boolean; notPressed: InputState[] };
+            onGround: { checkFor: boolean; noCheck: boolean };
+            attacking: boolean;
+            attackKey: InputState;
+            velocity: { x: number; y: number; noChange: boolean };
+            frameStart: number;
+            frameLength: number;
+            frameToUnlockMovement: number;
+            stopMovement: { bool: boolean; frame: number };
+        };
+    };
+    hitbox: {
+        show: boolean;
+    };
 };
