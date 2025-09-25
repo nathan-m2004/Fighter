@@ -1,6 +1,13 @@
 import Movement from "./Movement";
 
-export type InputState = { key: string; pressed: boolean; startFramehold: number; timeHoldingFrames: number };
+export type InputState = {
+    key: string;
+    gamepadKey: number;
+    gamepadAxe: { index: number; negative: boolean };
+    pressed: boolean;
+    startFramehold: number;
+    timeHoldingFrames: number;
+};
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
 
@@ -30,6 +37,7 @@ export default class Player {
     keys: Keys;
     dummy: boolean;
     movement: Movement;
+    gamepad: { index: number };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -45,14 +53,65 @@ export default class Player {
 
         this.dummy = false;
 
+        this.gamepad = { index: undefined };
         this.keys = {
-            left: { key: "KeyA", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            right: { key: "KeyD", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            dash: { key: "ShiftLeft", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            up: { key: "KeyW", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            down: { key: "KeyS", pressed: false, startFramehold: 0, timeHoldingFrames: 0, delayToLeavePlataform: 80 },
-            jump: { key: "Space", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            lightAttack: { key: "KeyJ", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            left: {
+                key: "KeyA",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 0, negative: true },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            right: {
+                key: "KeyD",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 0, negative: false },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            up: {
+                key: "KeyW",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 1, negative: true },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            down: {
+                key: "KeyS",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 1, negative: false },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+                delayToLeavePlataform: 80,
+            },
+            dash: {
+                key: "ShiftLeft",
+                gamepadKey: 9,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            jump: {
+                key: "Space",
+                gamepadKey: 0,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            lightAttack: {
+                key: "KeyJ",
+                gamepadKey: 3,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
@@ -81,7 +140,44 @@ export default class Player {
             }
         });
     }
+    gamepadUpdate() {
+        const gamepad = navigator.getGamepads()[this.gamepad.index];
+        if (!gamepad) return;
 
+        for (const key of Object.keys(this.keys) as Array<keyof Keys>) {
+            const button = this.keys[key];
+
+            if (button.gamepadKey !== undefined) {
+                if (gamepad.buttons[button.gamepadKey].pressed) {
+                    if (!button.pressed) {
+                        button.timeHoldingFrames = 0;
+                        button.startFramehold = this.frames.currentFrame;
+                    }
+                    button.pressed = true;
+                } else {
+                    button.pressed = false;
+                    button.timeHoldingFrames = 0;
+                }
+            }
+
+            if (button.gamepadAxe !== undefined) {
+                if (
+                    button.gamepadAxe.negative
+                        ? gamepad.axes[button.gamepadAxe.index] <= -0.2
+                        : gamepad.axes[button.gamepadAxe.index] >= 0.2
+                ) {
+                    if (!button.pressed) {
+                        button.timeHoldingFrames = 0;
+                        button.startFramehold = this.frames.currentFrame;
+                    }
+                    button.pressed = true;
+                } else {
+                    button.pressed = false;
+                    button.timeHoldingFrames = 0;
+                }
+            }
+        }
+    }
     physics() {
         if (!this.movement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
