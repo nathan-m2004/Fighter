@@ -1,4 +1,5 @@
 import Movement from "./Movement";
+import axios from "axios";
 
 export type InputState = {
     key: string;
@@ -39,6 +40,7 @@ export default class Player {
     movement: Movement;
     gamepad: { index: number };
     debugInfo: boolean;
+    image: { api: string; url: string; image: HTMLImageElement };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -51,6 +53,8 @@ export default class Player {
 
         this.gravity = gravity;
         this.movement = new Movement();
+
+        this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
 
         this.dummy = false;
         this.debugInfo = false;
@@ -165,8 +169,8 @@ export default class Player {
             if (button.gamepadAxe !== undefined) {
                 if (
                     button.gamepadAxe.negative
-                        ? gamepad.axes[button.gamepadAxe.index] <= -0.2
-                        : gamepad.axes[button.gamepadAxe.index] >= 0.2
+                        ? gamepad.axes[button.gamepadAxe.index] <= -0.1
+                        : gamepad.axes[button.gamepadAxe.index] >= 0.1
                 ) {
                     if (!button.pressed) {
                         button.timeHoldingFrames = 0;
@@ -180,6 +184,13 @@ export default class Player {
             }
         }
     }
+    getPlayerImage() {
+        axios.get(this.image.api).then((response) => {
+            this.image.url = response.data[0].url;
+            this.image.image = new Image(this.size.width - 10, this.size.height - 10);
+            this.image.image.src = this.image.url;
+        });
+    }
     physics() {
         if (!this.movement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
@@ -190,10 +201,22 @@ export default class Player {
     }
     draw() {
         this.context.fillStyle = this.color;
-        if (this.movement.dashing) {
-            this.context.fillStyle = "green";
-        }
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
+
+        if (this.image.image) {
+            this.context.drawImage(
+                this.image.image,
+                this.position.x + 5,
+                this.position.y + 5,
+                this.size.height - 10,
+                this.size.width - 10
+            );
+        }
+
+        if (this.movement.dashing) {
+            this.context.fillStyle = "rgba(0, 255, 0, 0.5)";
+            this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
+        }
 
         if (this.debugInfo) {
             this.context.fillStyle = "white"; // Set a color for the text
