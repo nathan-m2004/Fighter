@@ -78,12 +78,6 @@ export default class Game {
                     player.movement.dashCount = 0;
                     player.movement.onGround = true;
                 }
-
-                this.context.fillStyle = "black"; // Set a color for the text
-                this.context.font = "16px Arial"; // Set the font and size
-                const text = `${collision}`;
-                // Position the text within the rectangle
-                this.context.fillText(text, object.position.x + 10, object.position.y + 20);
             }
         });
     }

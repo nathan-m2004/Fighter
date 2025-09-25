@@ -38,6 +38,7 @@ export default class Player {
     dummy: boolean;
     movement: Movement;
     gamepad: { index: number };
+    debugInfo: boolean;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -52,6 +53,7 @@ export default class Player {
         this.movement = new Movement();
 
         this.dummy = false;
+        this.debugInfo = false;
 
         this.gamepad = { index: undefined };
         this.keys = {
@@ -193,16 +195,18 @@ export default class Player {
         }
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
-        this.context.fillStyle = "white"; // Set a color for the text
-        this.context.font = "16px Arial"; // Set the font and size
-        this.context.fillText(
-            `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
-            10,
-            20
-        );
-        this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
-        this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
-        this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
-        this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
+        if (this.debugInfo) {
+            this.context.fillStyle = "white"; // Set a color for the text
+            this.context.font = "16px Arial"; // Set the font and size
+            this.context.fillText(
+                `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
+                10,
+                20
+            );
+            this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
+            this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
+            this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
+            this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
+        }
     }
 }
