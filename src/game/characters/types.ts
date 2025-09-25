@@ -3,10 +3,7 @@ import Fighter from "./Fighter";
 
 export type Characters = Fighter;
 
-type AttackList = { attacking: boolean; direction: string; frameStart: number; frameLength: number };
-
 export type AttackStates = {
-    list: { [key: string]: AttackList };
     size: number;
     canAttack: boolean;
     attackCooldown: number;
@@ -14,15 +11,20 @@ export type AttackStates = {
     attacking: boolean;
     map: {
         [key: string]: {
-            x: number;
-            y: number;
+            x: { current: number; offset: number };
+            y: { current: number; offset: number };
             width: number;
             height: number;
-            keys: { pressed: boolean[]; notPressed: boolean[] };
+            direction: string;
+            keys: { pressed: InputState[]; notPressed: InputState[] };
             onGround: { checkFor: boolean; noCheck: boolean };
-            attack: AttackList;
+            attacking: boolean;
             attackKey: InputState;
             velocity: { x: number; y: number; noChange: boolean };
+            frameStart: number;
+            frameLength: number;
+            frameToUnlockMovement: number;
+            stopMovement: { bool: boolean; frame: number };
         };
     };
     hitbox: {

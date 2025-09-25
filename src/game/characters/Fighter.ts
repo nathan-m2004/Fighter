@@ -9,9 +9,6 @@ export default class Fighter extends Player {
 
         this.groundAttackMovement = { x: 70, y: 150 };
         this.attack = {
-            list: {
-                lightAttack: { attacking: false, direction: undefined, frameStart: 0, frameLength: 200 },
-            },
             size: 50,
             canAttack: true,
             attackCooldown: 500,
@@ -22,225 +19,291 @@ export default class Fighter extends Player {
                 show: true,
             },
         };
-    }
-    lightAttack() {
+
         this.attack.map = {
-            left: {
-                x: this.position.x - this.size.width - this.attack.size,
-                y: this.position.y,
-                width: this.size.width + this.attack.size,
+            noMovementLeft: {
+                x: { current: 0, offset: -this.size.width - this.attack.size + 50 },
+                y: { current: 0, offset: 0 },
+                width: this.size.width + this.attack.size - 50,
                 height: this.size.height,
-                keys: { pressed: [this.keys.left.pressed], notPressed: [this.keys.down.pressed, this.keys.up.pressed] },
+                direction: "left",
+                keys: { pressed: [], notPressed: [this.keys.down, this.keys.up, this.keys.left, this.keys.right] },
                 onGround: { checkFor: undefined, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 300,
+                frameToUnlockMovement: 50,
+                stopMovement: { bool: true, frame: 50 },
+            },
+            noMovementRight: {
+                x: { current: 0, offset: this.size.width - this.attack.size + 50 },
+                y: { current: 0, offset: 0 },
+                width: this.size.width + this.attack.size - 50,
+                height: this.size.height,
+                direction: "right",
+                keys: { pressed: [], notPressed: [this.keys.down, this.keys.up, this.keys.left, this.keys.right] },
+                onGround: { checkFor: undefined, noCheck: true },
+                attacking: false,
+                attackKey: this.keys.lightAttack,
+                velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 300,
+                frameToUnlockMovement: 50,
+                stopMovement: { bool: true, frame: 50 },
+            },
+            left: {
+                x: { current: 0, offset: -this.size.width - this.attack.size },
+                y: { current: 0, offset: 0 },
+                width: this.size.width + this.attack.size,
+                height: this.size.height,
+                direction: "left",
+                keys: { pressed: [this.keys.left], notPressed: [this.keys.down, this.keys.up] },
+                onGround: { checkFor: undefined, noCheck: true },
+                attacking: false,
+                attackKey: this.keys.lightAttack,
+                velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             leftUp: {
-                x: this.position.x,
-                y: this.position.y,
+                x: { current: 0, offset: 0 },
+                y: { current: 0, offset: 0 },
                 width: -this.size.width - this.attack.size,
                 height: -this.size.height - this.attack.size,
-                keys: { pressed: [this.keys.left.pressed, this.keys.up.pressed], notPressed: [] },
+                direction: "left",
+                keys: { pressed: [this.keys.left, this.keys.up], notPressed: [] },
                 onGround: { checkFor: undefined, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             leftDown: {
-                x: this.position.x,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: 0 },
+                y: { current: 0, offset: this.size.height },
                 width: -this.size.width - this.attack.size,
                 height: this.size.height + this.attack.size,
-                keys: { pressed: [this.keys.down.pressed, this.keys.left.pressed], notPressed: [] },
+                direction: "left",
+                keys: { pressed: [this.keys.down, this.keys.left], notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             right: {
-                x: this.position.x + this.size.width,
-                y: this.position.y,
+                x: { current: 0, offset: this.size.width },
+                y: { current: 0, offset: 0 },
                 width: this.size.width + this.attack.size,
                 height: this.size.height,
+                direction: "right",
                 keys: {
-                    pressed: [this.keys.right.pressed],
-                    notPressed: [this.keys.down.pressed, this.keys.up.pressed],
+                    pressed: [this.keys.right],
+                    notPressed: [this.keys.down, this.keys.up],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             rightUp: {
-                x: this.position.x + this.size.width,
-                y: this.position.y,
+                x: { current: 0, offset: this.size.width },
+                y: { current: 0, offset: 0 },
                 width: this.size.width + this.attack.size,
                 height: -this.size.height - this.attack.size,
-                keys: { pressed: [this.keys.right.pressed, this.keys.up.pressed], notPressed: [] },
+                direction: "right",
+                keys: { pressed: [this.keys.right, this.keys.up], notPressed: [] },
                 onGround: { checkFor: undefined, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             rightDown: {
-                x: this.position.x + this.size.width,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: this.size.width },
+                y: { current: 0, offset: this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
-                keys: { pressed: [this.keys.right.pressed, this.keys.down.pressed], notPressed: [] },
+                direction: "right",
+                keys: { pressed: [this.keys.right, this.keys.down], notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             down: {
-                x: this.position.x,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: 0 },
+                y: { current: 0, offset: this.size.height },
                 width: this.size.width,
                 height: this.size.height + this.attack.size,
-                keys: { pressed: [this.keys.down.pressed], notPressed: [] },
+                direction: undefined,
+                keys: { pressed: [this.keys.down], notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             downLeftGround: {
-                x: this.position.x,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: 0 },
+                y: { current: 0, offset: this.size.height },
                 width: -this.size.width - this.attack.size,
                 height: this.size.height + this.attack.size,
-                keys: { pressed: [this.keys.down.pressed, this.keys.left.pressed], notPressed: [] },
+                direction: "left",
+                keys: { pressed: [this.keys.down, this.keys.left], notPressed: [] },
                 onGround: { checkFor: true, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: this.groundAttackMovement.x, y: -this.groundAttackMovement.y, noChange: false },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             downRightGround: {
-                x: this.position.x + this.size.width,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: this.size.width },
+                y: { current: 0, offset: this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
-                keys: { pressed: [this.keys.down.pressed, this.keys.right.pressed], notPressed: [] },
+                direction: "right",
+                keys: { pressed: [this.keys.down, this.keys.right], notPressed: [] },
                 onGround: { checkFor: true, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: -this.groundAttackMovement.x, y: -this.groundAttackMovement.y, noChange: false },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             downGround: {
-                x: this.position.x - this.attack.size / 2,
-                y: this.position.y + this.size.height,
+                x: { current: 0, offset: -this.attack.size / 2 },
+                y: { current: 0, offset: +this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
+                direction: undefined,
                 keys: {
-                    pressed: [this.keys.down.pressed],
-                    notPressed: [this.keys.left.pressed, this.keys.right.pressed],
+                    pressed: [this.keys.down],
+                    notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: true, noCheck: false },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: 0, y: -this.groundAttackMovement.y, noChange: false },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
             up: {
-                x: this.position.x - this.attack.size / 2,
-                y: this.position.y,
+                x: { current: 0, offset: -this.attack.size / 2 },
+                y: { current: 0, offset: 0 },
                 width: this.size.width + this.attack.size,
                 height: -this.size.height - this.attack.size,
+                direction: undefined,
                 keys: {
-                    pressed: [this.keys.up.pressed],
-                    notPressed: [this.keys.left.pressed, this.keys.right.pressed],
+                    pressed: [this.keys.up],
+                    notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: false, noCheck: true },
-                attack: this.attack.list.lightAttack,
+                attacking: false,
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
+                frameStart: 0,
+                frameLength: 200,
+                frameToUnlockMovement: 100,
+                stopMovement: { bool: true, frame: 100 },
             },
         };
-
+    }
+    lightAttack() {
         for (const key in this.attack.map) {
             const attack = this.attack.map[key];
-            const keysPressed = attack.keys.pressed.every(Boolean);
-            const keysNotPressed = attack.keys.notPressed.every((element) => element === false);
+            const keysPressed = attack.keys.pressed.every((element) => element.pressed === true);
+            const keysNotPressed = attack.keys.notPressed.every((element) => element.pressed === false);
             const groundCheck = attack.onGround.noCheck ? true : attack.onGround.checkFor === this.movement.onGround;
+            const directionCheck = attack.direction ? attack.direction === this.movement.direction : true;
+
             if (
                 groundCheck &&
                 keysPressed &&
                 keysNotPressed &&
+                directionCheck &&
                 attack.attackKey.pressed &&
                 this.attack.canAttack &&
                 !this.attack.attacking &&
                 this.frames.currentFrame - this.attack.attackFrameStart >= this.attack.attackCooldown
             ) {
                 this.attack.attacking = true;
-                attack.attack.direction = key;
-                attack.attack.attacking = true;
-                attack.attack.frameStart = this.frames.currentFrame;
-                this.attack.attackFrameStart = this.attack.list.lightAttack.frameStart;
+                attack.attacking = true;
+                attack.frameStart = this.frames.currentFrame;
+                this.attack.attackFrameStart = attack.frameStart;
 
                 if (!attack.velocity.noChange) {
                     this.velocity.x = attack.velocity.x;
                     this.velocity.y = attack.velocity.y;
                 }
             }
-        }
 
-        // NO MOVEMENT INPUT
-        if (
-            this.keys.lightAttack.pressed &&
-            this.attack.canAttack &&
-            !this.attack.attacking &&
-            this.frames.currentFrame - this.attack.attackFrameStart >= this.attack.attackCooldown
-        ) {
-            this.attack.attacking = true;
-            this.attack.list.lightAttack.direction = this.movement.direction;
-            this.attack.list.lightAttack.attacking = true;
-            this.attack.list.lightAttack.frameStart = this.frames.currentFrame;
-            this.attack.attackFrameStart = this.attack.list.lightAttack.frameStart;
+            console.log(attack);
+            if (attack.attacking) {
+                attack.x.current = this.position.x + attack.x.offset;
+                attack.y.current = this.position.y + attack.y.offset;
 
-            this.velocity.x = 0;
-            this.velocity.y = 0;
-        }
+                const currentFrame = this.frames.currentFrame - attack.frameStart;
 
-        if (this.attack.list.lightAttack.attacking) {
-            const halfOfAnimation =
-                this.frames.currentFrame - this.attack.list.lightAttack.frameStart >=
-                this.attack.list.lightAttack.frameLength / 2;
+                if (currentFrame >= attack.frameToUnlockMovement) {
+                    this.movement.canMove = true;
+                } else {
+                    this.movement.canMove = false;
+                }
 
-            if (halfOfAnimation) {
-                this.movement.canMove = true;
-                if (
-                    this.attack.list.lightAttack.direction === "downGround" ||
-                    this.attack.list.lightAttack.direction === "downRightGround" ||
-                    this.attack.list.lightAttack.direction === "downLeftGround"
-                ) {
+                if (attack.stopMovement.bool && currentFrame >= attack.stopMovement.frame) {
                     this.velocity.y = 0;
                     this.velocity.x = 0;
                 }
-            } else {
-                this.movement.canMove = false;
-            }
 
-            const endOfAnimation =
-                this.frames.currentFrame - this.attack.list.lightAttack.frameStart >=
-                this.attack.list.lightAttack.frameLength;
-            if (endOfAnimation) {
-                this.attack.attacking = false;
-                this.attack.list.lightAttack.attacking = false;
-                return;
-            }
+                if (currentFrame >= attack.frameLength) {
+                    this.attack.attacking = false;
+                    attack.attacking = false;
+                    return;
+                }
 
-            if (this.attack.hitbox.show) {
-                const direction = this.attack.list.lightAttack.direction;
-                const attack = this.attack.map[direction];
-                this.context.fillStyle = "green";
-                this.context.fillRect(attack.x, attack.y, attack.width, attack.height);
+                if (this.attack.hitbox.show) {
+                    this.context.fillStyle = "green";
+                    this.context.fillRect(attack.x.current, attack.y.current, attack.width, attack.height);
+                }
             }
         }
     }
     handleAttacks() {
         if (this.keys.lightAttack.pressed) {
             this.lightAttack();
-        } else if (this.attack.list.lightAttack.attacking) {
+        } else if (this.attack.attacking) {
             this.lightAttack();
         }
     }
