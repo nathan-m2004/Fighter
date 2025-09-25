@@ -28,6 +28,7 @@ export default class Game {
         window.addEventListener("gamepadconnected", (event) => {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
             newPlayer.gamepad.index = event.gamepad.index;
+            newPlayer.getPlayerImage();
             this.players.push(newPlayer);
         });
         window.addEventListener("gamepaddisconnected", (event) => {
