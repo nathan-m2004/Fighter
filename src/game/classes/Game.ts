@@ -92,6 +92,7 @@ export default class Game {
             }
             player.frames = this.frames;
             player.movement.update(player.keys, player.frames, player.velocity);
+            player.countTimeHoldingKey();
             player.handleAttacks();
             player.physics();
             player.draw();
