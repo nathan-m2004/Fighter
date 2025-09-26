@@ -20,10 +20,28 @@ export default class Game {
         this.map = map;
 
         this.gravity = 15;
-        this.players = [new Fighter(this.canvas, this.context, 500, 100, this.gravity)];
-        let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
-        dummy.dummy = true;
-        this.players.push(dummy);
+        this.players = [
+            new Fighter(this.canvas, this.context, 500, 100, this.gravity),
+            new Fighter(this.canvas, this.context, 300, 100, this.gravity),
+            new Fighter(this.canvas, this.context, 600, 100, this.gravity),
+        ];
+        //let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
+        //dummy.dummy = true;
+        //this.players.push(dummy);
+
+        window.addEventListener("gamepadconnected", (event) => {
+            const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
+            newPlayer.gamepad.index = event.gamepad.index;
+            newPlayer.getPlayerImage();
+            this.players.push(newPlayer);
+        });
+        window.addEventListener("gamepaddisconnected", (event) => {
+            for (let i = 0; i < this.players.length; i++) {
+                if (this.players[i].gamepad.index === event.gamepad.index) {
+                    this.players.splice(i, 1);
+                }
+            }
+        });
     }
     collisionPlayerObject() {
         this.players.forEach((player) => {
@@ -65,12 +83,24 @@ export default class Game {
                     player.movement.dashCount = 0;
                     player.movement.onGround = true;
                 }
+            }
+        });
+    }
+    displayHud() {
+        this.players.forEach((player, index) => {
+            const width = player.size.width * 0.8;
+            const height = player.size.height * 0.8;
+            this.context.fillStyle = player.color;
+            this.context.fillRect(10, height * index + 10 * index + 10, width, height);
 
-                this.context.fillStyle = "black"; // Set a color for the text
-                this.context.font = "16px Arial"; // Set the font and size
-                const text = `${collision}`;
-                // Position the text within the rectangle
-                this.context.fillText(text, object.position.x + 10, object.position.y + 20);
+            if (player.image.image) {
+                this.context.drawImage(
+                    player.image.image,
+                    10 + 4,
+                    height * index + 10 * index + 10 + 4,
+                    width - 8,
+                    height - 8
+                );
             }
         });
     }
@@ -82,6 +112,7 @@ export default class Game {
 
         this.map.draw();
 
+        this.displayHud();
         this.collisionPlayerObject();
         this.players.forEach((player) => {
             if (player.dummy) {
@@ -92,6 +123,7 @@ export default class Game {
             }
             player.frames = this.frames;
             player.movement.update(player.keys, player.frames, player.velocity);
+            player.gamepadUpdate();
             player.countTimeHoldingKey();
             player.handleAttacks();
             player.physics();

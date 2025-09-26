@@ -1,6 +1,15 @@
+import { randomNumber } from "../util";
 import Movement from "./Movement";
+import axios from "axios";
 
-export type InputState = { key: string; pressed: boolean; startFramehold: number; timeHoldingFrames: number };
+export type InputState = {
+    key: string;
+    gamepadKey: number;
+    gamepadAxe: { index: number; negative: boolean };
+    pressed: boolean;
+    startFramehold: number;
+    timeHoldingFrames: number;
+};
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
 
@@ -30,12 +39,16 @@ export default class Player {
     keys: Keys;
     dummy: boolean;
     movement: Movement;
+    gamepad: { index: number };
+    debugInfo: boolean;
+    image: { api: string; url: string; image: HTMLImageElement };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
         this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
 
-        this.color = "red";
+        this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
+        console.log(this.color);
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
@@ -43,16 +56,70 @@ export default class Player {
         this.gravity = gravity;
         this.movement = new Movement();
 
-        this.dummy = false;
+        this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
 
+        this.dummy = false;
+        this.debugInfo = false;
+
+        this.gamepad = { index: undefined };
         this.keys = {
-            left: { key: "KeyA", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            right: { key: "KeyD", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            dash: { key: "ShiftLeft", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            up: { key: "KeyW", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            down: { key: "KeyS", pressed: false, startFramehold: 0, timeHoldingFrames: 0, delayToLeavePlataform: 80 },
-            jump: { key: "Space", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
-            lightAttack: { key: "KeyJ", pressed: false, startFramehold: 0, timeHoldingFrames: 0 },
+            left: {
+                key: "KeyA",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 0, negative: true },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            right: {
+                key: "KeyD",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 0, negative: false },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            up: {
+                key: "KeyW",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 1, negative: true },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            down: {
+                key: "KeyS",
+                gamepadKey: undefined,
+                gamepadAxe: { index: 1, negative: false },
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+                delayToLeavePlataform: 80,
+            },
+            dash: {
+                key: "ShiftLeft",
+                gamepadKey: 9,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            jump: {
+                key: "Space",
+                gamepadKey: 0,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
+            lightAttack: {
+                key: "KeyJ",
+                gamepadKey: 3,
+                gamepadAxe: undefined,
+                pressed: false,
+                startFramehold: 0,
+                timeHoldingFrames: 0,
+            },
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
@@ -81,7 +148,51 @@ export default class Player {
             }
         });
     }
+    gamepadUpdate() {
+        const gamepad = navigator.getGamepads()[this.gamepad.index];
+        if (!gamepad) return;
 
+        for (const key of Object.keys(this.keys) as Array<keyof Keys>) {
+            const button = this.keys[key];
+
+            if (button.gamepadKey !== undefined) {
+                if (gamepad.buttons[button.gamepadKey].pressed) {
+                    if (!button.pressed) {
+                        button.timeHoldingFrames = 0;
+                        button.startFramehold = this.frames.currentFrame;
+                    }
+                    button.pressed = true;
+                } else {
+                    button.pressed = false;
+                    button.timeHoldingFrames = 0;
+                }
+            }
+
+            if (button.gamepadAxe !== undefined) {
+                if (
+                    button.gamepadAxe.negative
+                        ? gamepad.axes[button.gamepadAxe.index] <= -0.1
+                        : gamepad.axes[button.gamepadAxe.index] >= 0.1
+                ) {
+                    if (!button.pressed) {
+                        button.timeHoldingFrames = 0;
+                        button.startFramehold = this.frames.currentFrame;
+                    }
+                    button.pressed = true;
+                } else {
+                    button.pressed = false;
+                    button.timeHoldingFrames = 0;
+                }
+            }
+        }
+    }
+    getPlayerImage() {
+        axios.get(this.image.api).then((response) => {
+            this.image.url = response.data[0].url;
+            this.image.image = new Image(this.size.width - 10, this.size.height - 10);
+            this.image.image.src = this.image.url;
+        });
+    }
     physics() {
         if (!this.movement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
@@ -92,21 +203,35 @@ export default class Player {
     }
     draw() {
         this.context.fillStyle = this.color;
-        if (this.movement.dashing) {
-            this.context.fillStyle = "green";
-        }
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
-        this.context.fillStyle = "white"; // Set a color for the text
-        this.context.font = "16px Arial"; // Set the font and size
-        this.context.fillText(
-            `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
-            10,
-            20
-        );
-        this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
-        this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
-        this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
-        this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
+        if (this.image.image) {
+            this.context.drawImage(
+                this.image.image,
+                this.position.x + 5,
+                this.position.y + 5,
+                this.size.height - 10,
+                this.size.width - 10
+            );
+        }
+
+        if (this.movement.dashing) {
+            this.context.fillStyle = "rgba(0, 255, 0, 0.5)";
+            this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
+        }
+
+        if (this.debugInfo) {
+            this.context.fillStyle = "white"; // Set a color for the text
+            this.context.font = "16px Arial"; // Set the font and size
+            this.context.fillText(
+                `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
+                10,
+                20
+            );
+            this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
+            this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
+            this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
+            this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
+        }
     }
 }
