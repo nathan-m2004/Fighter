@@ -20,7 +20,11 @@ export default class Game {
         this.map = map;
 
         this.gravity = 15;
-        this.players = [new Fighter(this.canvas, this.context, 500, 100, this.gravity)];
+        this.players = [
+            new Fighter(this.canvas, this.context, 500, 100, this.gravity),
+            new Fighter(this.canvas, this.context, 300, 100, this.gravity),
+            new Fighter(this.canvas, this.context, 600, 100, this.gravity),
+        ];
         //let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
         //dummy.dummy = true;
         //this.players.push(dummy);
@@ -82,6 +86,24 @@ export default class Game {
             }
         });
     }
+    displayHud() {
+        this.players.forEach((player, index) => {
+            const width = player.size.width * 0.8;
+            const height = player.size.height * 0.8;
+            this.context.fillStyle = player.color;
+            this.context.fillRect(10, height * index + 10 * index + 10, width, height);
+
+            if (player.image.image) {
+                this.context.drawImage(
+                    player.image.image,
+                    10 + 4,
+                    height * index + 10 * index + 10 + 4,
+                    width - 8,
+                    height - 8
+                );
+            }
+        });
+    }
     draw() {
         this.frames.deltaTime = (this.frames.currentFrame - this.frames.lastFrame) / 100;
         this.frames.lastFrame = this.frames.currentFrame;
@@ -90,6 +112,7 @@ export default class Game {
 
         this.map.draw();
 
+        this.displayHud();
         this.collisionPlayerObject();
         this.players.forEach((player) => {
             if (player.dummy) {
