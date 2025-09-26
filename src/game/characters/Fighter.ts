@@ -41,7 +41,7 @@ export default class Fighter extends Player {
                     notPressed: [this.keys.down, this.keys.up, this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -61,7 +61,7 @@ export default class Fighter extends Player {
                     notPressed: [this.keys.down, this.keys.up],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -77,7 +77,7 @@ export default class Fighter extends Player {
                 directional: { bool: true, direction: this.movement.direction },
                 keys: { pressed: [this.keys.up], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: undefined, noCheck: true },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -93,7 +93,7 @@ export default class Fighter extends Player {
                 directional: { bool: true, direction: this.movement.direction },
                 keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -109,7 +109,7 @@ export default class Fighter extends Player {
                 directional: { bool: false, direction: undefined },
                 keys: { pressed: [this.keys.down], sideKeysPressed: false, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -125,7 +125,7 @@ export default class Fighter extends Player {
                 directional: { bool: true, direction: this.movement.direction },
                 keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: true, noCheck: true },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: -this.groundAttackMovement.x, y: -this.groundAttackMovement.y, noChange: false },
                 frameStart: 0,
@@ -145,7 +145,7 @@ export default class Fighter extends Player {
                     notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: true, noCheck: false },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: 0, y: -this.groundAttackMovement.y, noChange: false },
                 frameStart: 0,
@@ -165,7 +165,7 @@ export default class Fighter extends Player {
                     notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: false, noCheck: true },
-                attacking: { bool: false, hit: false, framesToHit: 50 },
+                attacking: { bool: false, hit: false, framesToHit: 100 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 frameStart: 0,
@@ -175,7 +175,7 @@ export default class Fighter extends Player {
             },
         };
     }
-    lightAttack() {
+    checkMap() {
         for (const key in this.attack.map) {
             const attack = this.attack.map[key];
 
@@ -262,7 +262,11 @@ export default class Fighter extends Player {
                 }
 
                 if (this.attack.hitbox.show) {
-                    this.context.fillStyle = "green";
+                    if (attack.attacking.hit) {
+                        this.context.fillStyle = "rgba(172, 175, 25, 0.7)";
+                    } else {
+                        this.context.fillStyle = "rgba(172, 175, 25, 0.2)";
+                    }
                     this.context.fillRect(attack.x.current, attack.y.current, attack.width, attack.height);
                 }
             }
@@ -270,9 +274,9 @@ export default class Fighter extends Player {
     }
     handleAttacks() {
         if (this.keys.lightAttack.pressed) {
-            this.lightAttack();
+            this.checkMap();
         } else if (this.attack.current) {
-            this.lightAttack();
+            this.checkMap();
         }
     }
     currentAttack() {}
