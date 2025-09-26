@@ -33,7 +33,7 @@ export default class Movement {
         this.jumpTimeDelta = 0;
         this.jumpDelay = 5;
         this.canMove = true;
-        this.direction = undefined;
+        this.direction = "right";
         this.speed = 50;
         this.maxSpeed = 80;
         this.stopping = false;
