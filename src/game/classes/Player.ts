@@ -8,7 +8,7 @@ export type InputState = {
     gamepadAxe: { index: number; negative: boolean };
     pressed: boolean;
     startFramehold: number;
-    timeHoldingFrames: number;
+    timeHoldingDelta: number;
 };
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
@@ -68,7 +68,7 @@ export default class Player {
                 gamepadAxe: { index: 0, negative: true },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             right: {
                 key: "KeyD",
@@ -76,7 +76,7 @@ export default class Player {
                 gamepadAxe: { index: 0, negative: false },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             up: {
                 key: "KeyW",
@@ -84,7 +84,7 @@ export default class Player {
                 gamepadAxe: { index: 1, negative: true },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             down: {
                 key: "KeyS",
@@ -92,8 +92,8 @@ export default class Player {
                 gamepadAxe: { index: 1, negative: false },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
-                delayToLeavePlataform: 80,
+                timeHoldingDelta: 0,
+                delayToLeavePlataform: 1.12,
             },
             dash: {
                 key: "ShiftLeft",
@@ -101,7 +101,7 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             jump: {
                 key: "Space",
@@ -109,7 +109,7 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             lightAttack: {
                 key: "KeyJ",
@@ -117,15 +117,15 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
                     if (!action.pressed) {
-                        action.timeHoldingFrames = 0;
-                        action.startFramehold = this.frames.currentFrame;
+                        action.timeHoldingDelta = 0;
+                        action.startFramehold = 0;
                         action.pressed = true;
                     }
                 }
@@ -135,7 +135,7 @@ export default class Player {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
                     action.pressed = false;
-                    action.timeHoldingFrames = 0;
+                    action.timeHoldingDelta = 0;
                 }
             });
         });
@@ -143,7 +143,7 @@ export default class Player {
     countTimeHoldingKey() {
         Object.values(this.keys).forEach((action) => {
             if (action.pressed) {
-                action.timeHoldingFrames = this.frames.currentFrame - action.startFramehold;
+                action.timeHoldingDelta += this.frames.deltaTime;
             }
         });
     }
@@ -157,13 +157,13 @@ export default class Player {
             if (button.gamepadKey !== undefined) {
                 if (gamepad.buttons[button.gamepadKey].pressed) {
                     if (!button.pressed) {
-                        button.timeHoldingFrames = 0;
+                        button.timeHoldingDelta = 0;
                         button.startFramehold = this.frames.currentFrame;
                     }
                     button.pressed = true;
                 } else {
                     button.pressed = false;
-                    button.timeHoldingFrames = 0;
+                    button.timeHoldingDelta = 0;
                 }
             }
 
@@ -174,13 +174,13 @@ export default class Player {
                         : gamepad.axes[button.gamepadAxe.index] >= 0.1
                 ) {
                     if (!button.pressed) {
-                        button.timeHoldingFrames = 0;
+                        button.timeHoldingDelta = 0;
                         button.startFramehold = this.frames.currentFrame;
                     }
                     button.pressed = true;
                 } else {
                     button.pressed = false;
-                    button.timeHoldingFrames = 0;
+                    button.timeHoldingDelta = 0;
                 }
             }
         }

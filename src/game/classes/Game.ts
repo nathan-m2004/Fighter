@@ -75,7 +75,7 @@ export default class Game {
                     collision === "top" &&
                     object.canGoInside &&
                     player.velocity.y >= 0 &&
-                    player.keys.down.timeHoldingFrames <= player.keys.down.delayToLeavePlataform
+                    player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
                 ) {
                     player.velocity.y = 0;
                     player.position.y = object.position.y - player.size.height;
