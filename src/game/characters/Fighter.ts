@@ -1,9 +1,10 @@
 import Player from "../classes/Player";
-import { AttackStates } from "./types";
+import { Attack, AttackStates } from "./types";
 
 export default class Fighter extends Player {
     attack: AttackStates;
     groundAttackMovement: { x: number; y: number };
+    test: { readonly current: void };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         super(canvas, context, x, y, gravity);
 
@@ -14,6 +15,13 @@ export default class Fighter extends Player {
             attackCooldown: 500,
             attackFrameStart: 0,
             attacking: false,
+            get current() {
+                const foundEntry = Object.entries(this.map).find(([key, value]: [string, Attack]) => {
+                    return value.attacking;
+                });
+
+                return foundEntry ? foundEntry[0] : null;
+            },
             map: {},
             hitbox: {
                 show: true,
@@ -257,4 +265,5 @@ export default class Fighter extends Player {
             this.lightAttack();
         }
     }
+    currentAttack() {}
 }
