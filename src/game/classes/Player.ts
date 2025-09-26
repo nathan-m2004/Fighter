@@ -58,7 +58,7 @@ export default class Player {
         this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
 
         this.dummy = false;
-        this.debugInfo = false;
+        this.debugInfo = true;
 
         this.gamepad = { index: undefined };
         this.keys = {

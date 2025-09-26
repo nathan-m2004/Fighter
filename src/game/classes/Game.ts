@@ -22,8 +22,8 @@ export default class Game {
         this.gravity = 15;
         this.players = [
             new Fighter(this.canvas, this.context, 500, 100, this.gravity),
-            new Fighter(this.canvas, this.context, 300, 100, this.gravity),
-            new Fighter(this.canvas, this.context, 600, 100, this.gravity),
+            //new Fighter(this.canvas, this.context, 300, 100, this.gravity),
+            //new Fighter(this.canvas, this.context, 600, 100, this.gravity),
         ];
         //let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
         //dummy.dummy = true;
