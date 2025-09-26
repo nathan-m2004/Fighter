@@ -48,7 +48,6 @@ export default class Player {
         this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
 
         this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
-        console.log(this.color);
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
