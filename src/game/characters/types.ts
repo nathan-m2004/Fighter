@@ -12,7 +12,7 @@ export type Attack = {
         directional: { bool: boolean; direction: string };
         keys: { pressed: InputState[]; sideKeysPressed: boolean; notPressed: InputState[] };
         onGround: { checkFor: boolean; noCheck: boolean };
-        attacking: boolean;
+        attacking: { bool: boolean; hit: boolean; framesToHit: number };
         attackKey: InputState;
         velocity: { x: number; y: number; noChange: boolean };
         frameStart: number;
@@ -27,7 +27,6 @@ export type AttackStates = {
     canAttack: boolean;
     attackCooldown: number;
     attackFrameStart: number;
-    attacking: boolean;
     readonly current: string;
     map: Attack;
     hitbox: {
