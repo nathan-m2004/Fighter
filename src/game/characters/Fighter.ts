@@ -201,6 +201,7 @@ export default class Fighter extends Player {
                 }
 
             if (attack.attacking.bool) {
+                // DIRECTIONAL STUFF
                 if (attack.directional.bool) {
                     if (this.frames.currentFrame === attack.frameStart) {
                         attack.directional.direction = this.movement.direction;
@@ -217,6 +218,7 @@ export default class Fighter extends Player {
                     attack.y.current = this.position.y + attack.y.offset;
                 }
 
+                //VELOCITY STUFF
                 if (!attack.velocity.noChange && attack.directional.bool) {
                     if (attack.directional.direction === "right") {
                         this.velocity.x = attack.velocity.x;
@@ -233,17 +235,26 @@ export default class Fighter extends Player {
 
                 const currentFrame = this.frames.currentFrame - attack.frameStart;
 
+                if (currentFrame >= attack.attacking.framesToHit) {
+                    attack.attacking.hit = true;
+                } else {
+                    attack.attacking.hit = false;
+                }
+
+                // MOVEMENT UNLOCK STUFF
                 if (currentFrame >= attack.frameToUnlockMovement) {
                     this.movement.canMove = true;
                 } else {
                     this.movement.canMove = false;
                 }
 
+                // STOP MOVEMENT STUFF
                 if (attack.stopMovement.bool && currentFrame >= attack.stopMovement.frame) {
                     this.velocity.y = 0;
                     this.velocity.x = 0;
                 }
 
+                // END OF THE ATTACK
                 if (currentFrame >= attack.frameLength) {
                     attack.attacking.bool = false;
                     this.attack.canAttack = true;
