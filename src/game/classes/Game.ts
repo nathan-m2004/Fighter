@@ -64,24 +64,26 @@ export default class Game {
 
                 if (collision && playerB.health.vulnerable) {
                     playerB.movement.knockedBack = true;
+                    let fucked = 1;
 
                     playerB.health.gotHit = true;
                     playerB.health.points -= attackState.hitPoints;
                     if (playerB.health.points <= 0) {
                         playerB.health.points = 1;
+                        fucked = 5;
                     }
 
                     if (attackState.directional.vertical === "up") {
-                        playerB.velocity.y -= attackState.knockBack.force;
+                        playerB.velocity.y -= attackState.knockBack.force * fucked;
                     }
                     if (attackState.directional.vertical === "down") {
-                        playerB.velocity.y += attackState.knockBack.force;
+                        playerB.velocity.y += attackState.knockBack.force * fucked;
                     }
                     if (attackState.directional.horizontal === "left") {
-                        playerB.velocity.x -= attackState.knockBack.force;
+                        playerB.velocity.x -= attackState.knockBack.force * fucked;
                     }
                     if (attackState.directional.horizontal === "right") {
-                        playerB.velocity.x += attackState.knockBack.force;
+                        playerB.velocity.x += attackState.knockBack.force * fucked;
                     }
                 }
             }
@@ -140,6 +142,8 @@ export default class Game {
             this.context.fillStyle = "white";
             this.context.font = "16px Arial";
             this.context.fillText(`Morreu: (${player.health.timesKilled})`, 90, height * index + 10 * index + 40);
+
+            this.context.fillText(`Vida: (${player.health.points})`, 90, height * index + 10 * index + 60);
 
             if (player.image.image) {
                 this.context.drawImage(

@@ -244,6 +244,7 @@ export default class Player {
             this.velocity.y = 0;
             this.health.spawning = true;
             this.health.timesKilled += 1;
+            this.health.points = 100;
         }
         if (this.position.y >= this.outOfBounds || this.position.y <= -this.outOfBounds) {
             this.position.x = 500;
@@ -252,6 +253,7 @@ export default class Player {
             this.velocity.y = 0;
             this.health.spawning = true;
             this.health.timesKilled += 1;
+            this.health.points = 100;
         }
     }
     physics() {

@@ -59,7 +59,7 @@ export default class Fighter extends Player {
                 frameTimeDelta: 0,
                 frameLengthDelta: 3,
                 frameToUnlockMovementDelta: 1.2,
-                stopMovement: { bool: true, frameDelta: 0.5 },
+                stopMovement: { bool: false, frameDelta: 0.5 },
             },
             side: {
                 x: { current: 0, offset: this.size.width },
@@ -82,7 +82,7 @@ export default class Fighter extends Player {
                 frameTimeDelta: 0,
                 frameLengthDelta: 3,
                 frameToUnlockMovementDelta: 1.2,
-                stopMovement: { bool: true, frameDelta: 0.5 },
+                stopMovement: { bool: false, frameDelta: 0.5 },
             },
             sideUp: {
                 x: { current: 0, offset: this.size.width },
@@ -101,7 +101,7 @@ export default class Fighter extends Player {
                 frameTimeDelta: 0,
                 frameLengthDelta: 3,
                 frameToUnlockMovementDelta: 1.2,
-                stopMovement: { bool: true, frameDelta: 0.5 },
+                stopMovement: { bool: false, frameDelta: 0.5 },
             },
             sideDown: {
                 x: { current: 0, offset: this.size.width },
@@ -204,7 +204,7 @@ export default class Fighter extends Player {
                 frameTimeDelta: 0,
                 frameLengthDelta: 3,
                 frameToUnlockMovementDelta: 1.2,
-                stopMovement: { bool: true, frameDelta: 0.5 },
+                stopMovement: { bool: false, frameDelta: 0.5 },
             },
         };
     }
