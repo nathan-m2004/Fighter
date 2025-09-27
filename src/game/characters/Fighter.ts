@@ -1,4 +1,4 @@
-import Player from "../classes/Player";
+import Player, { Position, Size } from "../classes/Player";
 import { Attack, AttackStates } from "./types";
 
 export default class Fighter extends Player {
@@ -17,7 +17,17 @@ export default class Fighter extends Player {
                 for (const key in this.map) {
                     const attack = this.map[key];
                     if (attack.attacking.bool) {
-                        return key;
+                        return attack;
+                    }
+                }
+            },
+            get currentsPositionSize() {
+                for (const key in this.map) {
+                    const attack = this.map[key];
+                    const position: Position = { x: attack.x.current, y: attack.y.current };
+                    const size: Size = { width: attack.width, height: attack.height };
+                    if (attack.attacking.bool) {
+                        return { position, size };
                     }
                 }
             },
@@ -33,13 +43,15 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: 0 },
                 width: this.size.width + this.attack.size - 50,
                 height: this.size.height,
-                directional: { bool: true, direction: this.movement.direction },
+                directional: { bool: true, horizontal: this.movement.direction, vertical: undefined },
                 keys: {
                     pressed: [],
                     sideKeysPressed: false,
                     notPressed: [this.keys.down, this.keys.up, this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
+                hitPoints: 20,
+                knockBack: { force: 150, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -54,13 +66,15 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: 0 },
                 width: this.size.width + this.attack.size,
                 height: this.size.height,
-                directional: { bool: true, direction: this.movement.direction },
+                directional: { bool: true, horizontal: this.movement.direction, vertical: undefined },
                 keys: {
                     pressed: [],
                     sideKeysPressed: true,
                     notPressed: [this.keys.down, this.keys.up],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -72,12 +86,14 @@ export default class Fighter extends Player {
             },
             sideUp: {
                 x: { current: 0, offset: this.size.width },
-                y: { current: 0, offset: 0 },
+                y: { current: 0, offset: -this.size.height - this.attack.size },
                 width: this.size.width + this.attack.size,
-                height: -this.size.height - this.attack.size,
-                directional: { bool: true, direction: this.movement.direction },
+                height: this.size.height + this.attack.size,
+                directional: { bool: true, horizontal: this.movement.direction, vertical: "up" },
                 keys: { pressed: [this.keys.up], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: undefined, noCheck: true },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -92,9 +108,11 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
-                directional: { bool: true, direction: this.movement.direction },
+                directional: { bool: true, horizontal: this.movement.direction, vertical: "down" },
                 keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -109,9 +127,11 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: this.size.height },
                 width: this.size.width,
                 height: this.size.height + this.attack.size,
-                directional: { bool: false, direction: undefined },
+                directional: { bool: false, horizontal: undefined, vertical: "down" },
                 keys: { pressed: [this.keys.down], sideKeysPressed: false, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -126,9 +146,11 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
-                directional: { bool: true, direction: this.movement.direction },
+                directional: { bool: true, horizontal: this.movement.direction, vertical: "down" },
                 keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: true, noCheck: true },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: -this.groundAttackMovement.x, y: -this.groundAttackMovement.y, noChange: false },
@@ -143,13 +165,15 @@ export default class Fighter extends Player {
                 y: { current: 0, offset: +this.size.height },
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
-                directional: { bool: false, direction: undefined },
+                directional: { bool: false, horizontal: undefined, vertical: "down" },
                 keys: {
                     pressed: [this.keys.down],
                     sideKeysPressed: false,
                     notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: true, noCheck: false },
+                hitPoints: 10,
+                knockBack: { force: 70, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: 0, y: -this.groundAttackMovement.y, noChange: false },
@@ -161,16 +185,18 @@ export default class Fighter extends Player {
             },
             up: {
                 x: { current: 0, offset: -this.attack.size / 2 },
-                y: { current: 0, offset: 0 },
+                y: { current: 0, offset: -this.size.height - this.attack.size },
                 width: this.size.width + this.attack.size,
-                height: -this.size.height - this.attack.size,
-                directional: { bool: false, direction: undefined },
+                height: this.size.height + this.attack.size,
+                directional: { bool: false, horizontal: undefined, vertical: "up" },
                 keys: {
                     pressed: [this.keys.up],
                     sideKeysPressed: false,
                     notPressed: [this.keys.left, this.keys.right],
                 },
                 onGround: { checkFor: false, noCheck: true },
+                hitPoints: 10,
+                knockBack: { force: 110, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
                 attackKey: this.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
@@ -211,12 +237,12 @@ export default class Fighter extends Player {
                 // DIRECTIONAL STUFF
                 if (attack.directional.bool) {
                     if (attack.firstFrame) {
-                        attack.directional.direction = this.movement.direction;
+                        attack.directional.horizontal = this.movement.direction;
                     }
-                    if (attack.directional.direction === "right") {
+                    if (attack.directional.horizontal === "right") {
                         attack.x.current = this.position.x + attack.x.offset;
                         attack.y.current = this.position.y + attack.y.offset;
-                    } else if (attack.directional.direction === "left") {
+                    } else if (attack.directional.horizontal === "left") {
                         attack.x.current = this.position.x - attack.x.offset + this.size.width - attack.width;
                         attack.y.current = this.position.y + attack.y.offset;
                     }
@@ -227,11 +253,11 @@ export default class Fighter extends Player {
 
                 //VELOCITY STUFF
                 if (!attack.velocity.noChange && attack.directional.bool) {
-                    if (attack.directional.direction === "right") {
+                    if (attack.directional.horizontal === "right") {
                         this.velocity.x = attack.velocity.x;
                         this.velocity.y = attack.velocity.y;
                     }
-                    if (attack.directional.direction === "left") {
+                    if (attack.directional.horizontal === "left") {
                         this.velocity.x = -attack.velocity.x;
                         this.velocity.y = attack.velocity.y;
                     }
