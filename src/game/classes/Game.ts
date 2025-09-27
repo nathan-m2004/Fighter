@@ -21,12 +21,13 @@ export default class Game {
 
         this.gravity = 15;
         this.players = [
-            new Fighter(this.canvas, this.context, 500, 100, this.gravity),
-            new Fighter(this.canvas, this.context, 300, 100, this.gravity),
-            new Fighter(this.canvas, this.context, 600, 100, this.gravity),
+            //new Fighter(this.canvas, this.context, 500, 300, this.gravity),
+            //new Fighter(this.canvas, this.context, 300, 100, this.gravity),
+            //new Fighter(this.canvas, this.context, 600, 100, this.gravity),
         ];
-        //let dummy = new Fighter(this.canvas, this.context, 500, 200, this.gravity);
+        //let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
         //dummy.dummy = true;
+        //dummy.health.spawning = false;
         //this.players.push(dummy);
 
         window.addEventListener("gamepadconnected", (event) => {
@@ -42,6 +43,49 @@ export default class Game {
                 }
             }
         });
+    }
+    collisionAttackPlayer() {
+        for (let a = 0; a < this.players.length; a++) {
+            const playerA = this.players[a];
+            const attackPosition = playerA.attack.currentsPositionSize;
+            const attackState = playerA.attack.current;
+
+            if (!attackPosition && !attackState) {
+                continue;
+            }
+
+            for (let b = 0; b < this.players.length; b++) {
+                if (a === b) {
+                    continue;
+                }
+
+                const playerB = this.players[b];
+                const collision = rectangleRectangle(attackPosition, playerB);
+
+                if (collision && playerB.health.vulnerable) {
+                    playerB.movement.knockedBack = true;
+
+                    playerB.health.gotHit = true;
+                    playerB.health.points -= attackState.hitPoints;
+                    if (playerB.health.points <= 0) {
+                        playerB.health.points = 1;
+                    }
+
+                    if (attackState.directional.vertical === "up") {
+                        playerB.velocity.y -= attackState.knockBack.force;
+                    }
+                    if (attackState.directional.vertical === "down") {
+                        playerB.velocity.y += attackState.knockBack.force;
+                    }
+                    if (attackState.directional.horizontal === "left") {
+                        playerB.velocity.x -= attackState.knockBack.force;
+                    }
+                    if (attackState.directional.horizontal === "right") {
+                        playerB.velocity.x += attackState.knockBack.force;
+                    }
+                }
+            }
+        }
     }
     collisionPlayerObject() {
         this.players.forEach((player) => {
@@ -75,7 +119,7 @@ export default class Game {
                     collision === "top" &&
                     object.canGoInside &&
                     player.velocity.y >= 0 &&
-                    player.keys.down.timeHoldingFrames <= player.keys.down.delayToLeavePlataform
+                    player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
                 ) {
                     player.velocity.y = 0;
                     player.position.y = object.position.y - player.size.height;
@@ -92,6 +136,10 @@ export default class Game {
             const height = player.size.height * 0.8;
             this.context.fillStyle = player.color;
             this.context.fillRect(10, height * index + 10 * index + 10, width, height);
+
+            this.context.fillStyle = "white";
+            this.context.font = "16px Arial";
+            this.context.fillText(`Morreu: (${player.health.timesKilled})`, 90, height * index + 10 * index + 40);
 
             if (player.image.image) {
                 this.context.drawImage(
@@ -114,18 +162,19 @@ export default class Game {
 
         this.displayHud();
         this.collisionPlayerObject();
+        this.collisionAttackPlayer();
         this.players.forEach((player) => {
-            if (player.dummy) {
-                player.frames = this.frames;
-                player.physics();
-                player.draw();
-                return;
-            }
             player.frames = this.frames;
-            player.movement.update(player.keys, player.frames, player.velocity);
-            player.gamepadUpdate();
-            player.countTimeHoldingKey();
-            player.handleAttacks();
+            if (player.dummy) {
+                player.movement.update(player.keys, player.frames, player.velocity, true);
+            } else {
+                player.movement.update(player.keys, player.frames, player.velocity, false);
+                player.gamepadUpdate();
+                player.handleAttacks();
+                player.countTimeHoldingKey();
+            }
+            player.checkVulnerability();
+            player.checkIfOutOfBounds();
             player.physics();
             player.draw();
         });

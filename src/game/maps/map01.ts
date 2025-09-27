@@ -3,9 +3,12 @@ import MapObject from "../classes/MapObject";
 
 export default (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
     const map = new GameMap(canvas, context);
-    map.objects.push(new MapObject(canvas, context, 300, 700, 500, 50));
+    map.objects.push(new MapObject(canvas, context, 300, 700, 1200, 50));
     const sideBlock = new MapObject(canvas, context, 600, 500, 200, 50);
     sideBlock.canGoInside = true;
     map.objects.push(sideBlock);
+    const sideBlock2 = new MapObject(canvas, context, 1000, 150, 200, 50);
+    sideBlock2.canGoInside = true;
+    map.objects.push(sideBlock2);
     return map;
 };

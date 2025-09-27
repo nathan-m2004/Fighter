@@ -8,7 +8,7 @@ export type InputState = {
     gamepadAxe: { index: number; negative: boolean };
     pressed: boolean;
     startFramehold: number;
-    timeHoldingFrames: number;
+    timeHoldingDelta: number;
 };
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
@@ -16,6 +16,8 @@ export type FrameState = { animationFrame: number; currentFrame: number; lastFra
 export type Velocity = { x: number; y: number };
 
 export type Position = { x: number; y: number };
+
+export type Size = { width: number; height: number };
 
 export type Keys = {
     lightAttack: InputState;
@@ -34,7 +36,7 @@ export default class Player {
     position: Position;
     velocity: Velocity;
     gravity: number;
-    size: { width: number; height: number };
+    size: Size;
     frames: FrameState;
     keys: Keys;
     dummy: boolean;
@@ -42,17 +44,38 @@ export default class Player {
     gamepad: { index: number };
     debugInfo: boolean;
     image: { api: string; url: string; image: HTMLImageElement };
+    health: {
+        points: number;
+        vulnerable: boolean;
+        vulnerableTimeDelta: number;
+        hitVulnerabilityTimeDelta: number;
+        gotHit: boolean;
+        spawning: boolean;
+        spawnVulnerabilityTimeDelta: number;
+        timesKilled: number;
+    };
+    outOfBounds: number;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
         this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
 
         this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
-        console.log(this.color);
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
+        this.health = {
+            points: 100,
+            vulnerable: true,
+            vulnerableTimeDelta: 0,
+            hitVulnerabilityTimeDelta: 4,
+            gotHit: false,
+            spawning: true,
+            spawnVulnerabilityTimeDelta: 15,
+            timesKilled: 0,
+        };
 
+        this.outOfBounds = 2000;
         this.gravity = gravity;
         this.movement = new Movement();
 
@@ -69,7 +92,7 @@ export default class Player {
                 gamepadAxe: { index: 0, negative: true },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             right: {
                 key: "KeyD",
@@ -77,7 +100,7 @@ export default class Player {
                 gamepadAxe: { index: 0, negative: false },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             up: {
                 key: "KeyW",
@@ -85,7 +108,7 @@ export default class Player {
                 gamepadAxe: { index: 1, negative: true },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             down: {
                 key: "KeyS",
@@ -93,8 +116,8 @@ export default class Player {
                 gamepadAxe: { index: 1, negative: false },
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
-                delayToLeavePlataform: 80,
+                timeHoldingDelta: 0,
+                delayToLeavePlataform: 1.12,
             },
             dash: {
                 key: "ShiftLeft",
@@ -102,7 +125,7 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             jump: {
                 key: "Space",
@@ -110,7 +133,7 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
             lightAttack: {
                 key: "KeyJ",
@@ -118,15 +141,15 @@ export default class Player {
                 gamepadAxe: undefined,
                 pressed: false,
                 startFramehold: 0,
-                timeHoldingFrames: 0,
+                timeHoldingDelta: 0,
             },
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
                     if (!action.pressed) {
-                        action.timeHoldingFrames = 0;
-                        action.startFramehold = this.frames.currentFrame;
+                        action.timeHoldingDelta = 0;
+                        action.startFramehold = 0;
                         action.pressed = true;
                     }
                 }
@@ -136,7 +159,7 @@ export default class Player {
             Object.values(this.keys).forEach((action) => {
                 if (action.key === event.code) {
                     action.pressed = false;
-                    action.timeHoldingFrames = 0;
+                    action.timeHoldingDelta = 0;
                 }
             });
         });
@@ -144,7 +167,7 @@ export default class Player {
     countTimeHoldingKey() {
         Object.values(this.keys).forEach((action) => {
             if (action.pressed) {
-                action.timeHoldingFrames = this.frames.currentFrame - action.startFramehold;
+                action.timeHoldingDelta += this.frames.deltaTime;
             }
         });
     }
@@ -158,13 +181,13 @@ export default class Player {
             if (button.gamepadKey !== undefined) {
                 if (gamepad.buttons[button.gamepadKey].pressed) {
                     if (!button.pressed) {
-                        button.timeHoldingFrames = 0;
+                        button.timeHoldingDelta = 0;
                         button.startFramehold = this.frames.currentFrame;
                     }
                     button.pressed = true;
                 } else {
                     button.pressed = false;
-                    button.timeHoldingFrames = 0;
+                    button.timeHoldingDelta = 0;
                 }
             }
 
@@ -175,13 +198,13 @@ export default class Player {
                         : gamepad.axes[button.gamepadAxe.index] >= 0.1
                 ) {
                     if (!button.pressed) {
-                        button.timeHoldingFrames = 0;
+                        button.timeHoldingDelta = 0;
                         button.startFramehold = this.frames.currentFrame;
                     }
                     button.pressed = true;
                 } else {
                     button.pressed = false;
-                    button.timeHoldingFrames = 0;
+                    button.timeHoldingDelta = 0;
                 }
             }
         }
@@ -192,6 +215,44 @@ export default class Player {
             this.image.image = new Image(this.size.width - 10, this.size.height - 10);
             this.image.image.src = this.image.url;
         });
+    }
+    checkVulnerability() {
+        if (this.health.gotHit) {
+            this.health.vulnerableTimeDelta += this.frames.deltaTime;
+            this.health.vulnerable = false;
+            if (this.health.vulnerableTimeDelta >= this.health.hitVulnerabilityTimeDelta) {
+                this.health.vulnerableTimeDelta = 0;
+                this.health.vulnerable = true;
+                this.health.gotHit = false;
+            }
+        }
+        if (this.health.spawning) {
+            this.health.vulnerableTimeDelta += this.frames.deltaTime;
+            this.health.vulnerable = false;
+            if (this.health.vulnerableTimeDelta >= this.health.spawnVulnerabilityTimeDelta) {
+                this.health.vulnerableTimeDelta = 0;
+                this.health.vulnerable = true;
+                this.health.spawning = false;
+            }
+        }
+    }
+    checkIfOutOfBounds() {
+        if (this.position.x >= this.outOfBounds || this.position.x <= -this.outOfBounds) {
+            this.position.x = 500;
+            this.position.y = 100;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.health.spawning = true;
+            this.health.timesKilled += 1;
+        }
+        if (this.position.y >= this.outOfBounds || this.position.y <= -this.outOfBounds) {
+            this.position.x = 500;
+            this.position.y = 100;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.health.spawning = true;
+            this.health.timesKilled += 1;
+        }
     }
     physics() {
         if (!this.movement.dashing) {
@@ -215,7 +276,7 @@ export default class Player {
             );
         }
 
-        if (this.movement.dashing) {
+        if (this.movement.dashing || !this.health.vulnerable) {
             this.context.fillStyle = "rgba(0, 255, 0, 0.5)";
             this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
         }
