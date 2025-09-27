@@ -21,14 +21,14 @@ export default class Game {
 
         this.gravity = 15;
         this.players = [
-            new Fighter(this.canvas, this.context, 500, 300, this.gravity),
+            //new Fighter(this.canvas, this.context, 500, 300, this.gravity),
             //new Fighter(this.canvas, this.context, 300, 100, this.gravity),
             //new Fighter(this.canvas, this.context, 600, 100, this.gravity),
         ];
-        let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
-        dummy.dummy = true;
-        dummy.health.spawning = false;
-        this.players.push(dummy);
+        //let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
+        //dummy.dummy = true;
+        //dummy.health.spawning = false;
+        //this.players.push(dummy);
 
         window.addEventListener("gamepadconnected", (event) => {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
