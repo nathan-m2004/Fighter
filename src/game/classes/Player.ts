@@ -17,6 +17,8 @@ export type Velocity = { x: number; y: number };
 
 export type Position = { x: number; y: number };
 
+export type Size = { width: number; height: number };
+
 export type Keys = {
     lightAttack: InputState;
     left: InputState;
@@ -34,7 +36,7 @@ export default class Player {
     position: Position;
     velocity: Velocity;
     gravity: number;
-    size: { width: number; height: number };
+    size: Size;
     frames: FrameState;
     keys: Keys;
     dummy: boolean;
@@ -42,6 +44,15 @@ export default class Player {
     gamepad: { index: number };
     debugInfo: boolean;
     image: { api: string; url: string; image: HTMLImageElement };
+    health: {
+        points: number;
+        vulnerable: boolean;
+        vulnerableTimeDelta: number;
+        hitVulnerabilityTimeDelta: number;
+        gotHit: boolean;
+        spawning: boolean;
+        spawnVulnerabilityTimeDelta: number;
+    };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -51,6 +62,15 @@ export default class Player {
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
+        this.health = {
+            points: 100,
+            vulnerable: true,
+            vulnerableTimeDelta: 0,
+            hitVulnerabilityTimeDelta: 4,
+            gotHit: false,
+            spawning: true,
+            spawnVulnerabilityTimeDelta: 10,
+        };
 
         this.gravity = gravity;
         this.movement = new Movement();
@@ -192,6 +212,26 @@ export default class Player {
             this.image.image.src = this.image.url;
         });
     }
+    checkVulnerability() {
+        if (this.health.gotHit) {
+            this.health.vulnerableTimeDelta += this.frames.deltaTime;
+            this.health.vulnerable = false;
+            if (this.health.vulnerableTimeDelta >= this.health.hitVulnerabilityTimeDelta) {
+                this.health.vulnerableTimeDelta = 0;
+                this.health.vulnerable = true;
+                this.health.gotHit = false;
+            }
+        }
+        if (this.health.spawning) {
+            this.health.vulnerableTimeDelta += this.frames.deltaTime;
+            this.health.vulnerable = false;
+            if (this.health.vulnerableTimeDelta >= this.health.spawnVulnerabilityTimeDelta) {
+                this.health.vulnerableTimeDelta = 0;
+                this.health.vulnerable = true;
+                this.health.spawning = false;
+            }
+        }
+    }
     physics() {
         if (!this.movement.dashing) {
             this.velocity.y += this.gravity * this.frames.deltaTime;
@@ -214,7 +254,7 @@ export default class Player {
             );
         }
 
-        if (this.movement.dashing) {
+        if (this.movement.dashing || !this.health.vulnerable) {
             this.context.fillStyle = "rgba(0, 255, 0, 0.5)";
             this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
         }
