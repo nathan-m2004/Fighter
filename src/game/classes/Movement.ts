@@ -20,11 +20,15 @@ export default class Movement {
     dashForce: number;
     dashTimeDelta: number;
     dashLenghtDelta: number;
+    dashTimeToStopMovement: number;
     onGround: boolean;
 
     keys: Keys;
     frames: FrameState;
     velocity: Velocity;
+    knockedBack: boolean;
+    knockedBackTimeDelta: number;
+    knockedBackLengthTime: number;
 
     constructor() {
         this.onGround = false;
@@ -38,7 +42,7 @@ export default class Movement {
         this.maxSpeed = 80;
         this.stopping = false;
         this.stopped = true;
-        this.stoppingPower = 22;
+        this.stoppingPower = 5;
         this.stoppingTimeDelta = 0;
         this.stoppingLengthDelta = 0.8;
         this.dashing = false;
@@ -47,12 +51,16 @@ export default class Movement {
         this.dashForce = 150;
         this.dashTimeDelta = 0;
         this.dashLenghtDelta = 2.5;
+        this.dashTimeToStopMovement = 1.5;
+        this.knockedBack = false;
+        this.knockedBackLengthTime = 2;
+        this.knockedBackTimeDelta = 0;
 
         this.keys;
         this.frames;
         this.velocity;
     }
-    update(keys: Keys, frames: FrameState, velocity: Velocity) {
+    update(keys: Keys, frames: FrameState, velocity: Velocity, dummy: boolean) {
         this.keys = keys;
         this.frames = frames;
         this.velocity = velocity;
@@ -61,7 +69,35 @@ export default class Movement {
         this.stoppingTimeDelta += this.frames.deltaTime;
         this.dashTimeDelta += this.frames.deltaTime;
 
-        if (!this.canMove) {
+        // knockedBack
+        if (this.knockedBackTimeDelta >= this.knockedBackLengthTime) {
+            this.knockedBack = false;
+            this.knockedBackTimeDelta = 0;
+        }
+
+        if (this.knockedBack) {
+            this.knockedBackTimeDelta += this.frames.deltaTime;
+            return;
+        }
+
+        // side movement stopping logic
+        if (this.velocity.x !== 0) {
+            this.stopped = false;
+        }
+        if (!this.keys.left.pressed && !this.keys.right.pressed && !this.stopping && !this.stopped) {
+            this.stopping = true;
+            this.stoppingTimeDelta = 0;
+        }
+        if (this.stopping) {
+            this.velocity.x *= this.stoppingPower * this.frames.deltaTime;
+        }
+        if (this.stoppingLengthDelta <= this.stoppingTimeDelta && this.stopping) {
+            this.stopping = false;
+            this.stopped = true;
+            this.velocity.x = 0;
+        }
+
+        if (!this.canMove || dummy) {
             return;
         }
 
@@ -99,7 +135,7 @@ export default class Movement {
                 this.dashCount++;
             }
         }
-        if (this.dashTimeDelta >= this.dashLenghtDelta / 2 && this.dashing) {
+        if (this.dashTimeDelta >= this.dashTimeToStopMovement && this.dashing) {
             this.velocity.x = 0;
         }
         if (this.dashTimeDelta >= this.dashLenghtDelta && this.dashing) {
@@ -141,23 +177,6 @@ export default class Movement {
             } else {
                 this.velocity.y += this.speed * this.frames.deltaTime;
             }
-        }
-
-        // side movement stopping logic
-        if (this.velocity.x !== 0) {
-            this.stopped = false;
-        }
-        if (!this.keys.left.pressed && !this.keys.right.pressed && !this.stopping && !this.stopped) {
-            this.stopping = true;
-            this.stoppingTimeDelta = 0;
-        }
-        if (this.stopping) {
-            this.velocity.x /= this.stoppingPower * this.frames.deltaTime;
-        }
-        if (this.stoppingLengthDelta <= this.stoppingTimeDelta && this.stopping) {
-            this.stopping = false;
-            this.stopped = true;
-            this.velocity.x = 0;
         }
     }
 }
