@@ -137,6 +137,10 @@ export default class Game {
             this.context.fillStyle = player.color;
             this.context.fillRect(10, height * index + 10 * index + 10, width, height);
 
+            this.context.fillStyle = "white";
+            this.context.font = "16px Arial";
+            this.context.fillText(`Morreu: (${player.health.timesKilled})`, 90, height * index + 10 * index + 40);
+
             if (player.image.image) {
                 this.context.drawImage(
                     player.image.image,
@@ -170,6 +174,7 @@ export default class Game {
                 player.countTimeHoldingKey();
             }
             player.checkVulnerability();
+            player.checkIfOutOfBounds();
             player.physics();
             player.draw();
         });

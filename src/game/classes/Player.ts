@@ -52,7 +52,9 @@ export default class Player {
         gotHit: boolean;
         spawning: boolean;
         spawnVulnerabilityTimeDelta: number;
+        timesKilled: number;
     };
+    outOfBounds: number;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -69,16 +71,18 @@ export default class Player {
             hitVulnerabilityTimeDelta: 4,
             gotHit: false,
             spawning: true,
-            spawnVulnerabilityTimeDelta: 10,
+            spawnVulnerabilityTimeDelta: 15,
+            timesKilled: 0,
         };
 
+        this.outOfBounds = 2000;
         this.gravity = gravity;
         this.movement = new Movement();
 
         this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
 
         this.dummy = false;
-        this.debugInfo = true;
+        this.debugInfo = false;
 
         this.gamepad = { index: undefined };
         this.keys = {
@@ -230,6 +234,24 @@ export default class Player {
                 this.health.vulnerable = true;
                 this.health.spawning = false;
             }
+        }
+    }
+    checkIfOutOfBounds() {
+        if (this.position.x >= this.outOfBounds || this.position.x <= -this.outOfBounds) {
+            this.position.x = 500;
+            this.position.y = 100;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.health.spawning = true;
+            this.health.timesKilled += 1;
+        }
+        if (this.position.y >= this.outOfBounds || this.position.y <= -this.outOfBounds) {
+            this.position.x = 500;
+            this.position.y = 100;
+            this.velocity.x = 0;
+            this.velocity.y = 0;
+            this.health.spawning = true;
+            this.health.timesKilled += 1;
         }
     }
     physics() {
