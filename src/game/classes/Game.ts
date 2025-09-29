@@ -98,41 +98,39 @@ export default class Game {
                 const object = this.map.objects[i];
                 const collision = rectangleRectangle(player, object);
 
-                if (!collision) {
-                    return;
-                }
+                if (collision) {
+                    if (collision.side === "top" && !object.canGoInside) {
+                        player.velocity.y = 0;
+                        player.position.y = object.position.y - player.size.height;
+                        player.movement.jumpTimes = 0;
+                        player.movement.dashCount = 0;
+                        player.movement.onGround = true;
+                    }
+                    if (collision.side === "bottom" && !object.canGoInside) {
+                        player.position.y = object.position.y + object.size.height;
+                        player.velocity.y = 0;
+                    }
+                    if (collision.side === "left" && !object.canGoInside) {
+                        player.position.x = object.position.x - player.size.width;
+                        player.velocity.x = 0;
+                    }
+                    if (collision.side === "right" && !object.canGoInside) {
+                        player.position.x = object.position.x + object.size.width;
+                        player.velocity.x = 0;
+                    }
 
-                if (collision.side === "top" && !object.canGoInside) {
-                    player.velocity.y = 0;
-                    player.position.y = object.position.y - player.size.height;
-                    player.movement.jumpTimes = 0;
-                    player.movement.dashCount = 0;
-                    player.movement.onGround = true;
-                }
-                if (collision.side === "bottom" && !object.canGoInside) {
-                    player.position.y = object.position.y + object.size.height;
-                    player.velocity.y = 0;
-                }
-                if (collision.side === "left" && !object.canGoInside) {
-                    player.position.x = object.position.x - player.size.width;
-                    player.velocity.x = 0;
-                }
-                if (collision.side === "right" && !object.canGoInside) {
-                    player.position.x = object.position.x + object.size.width;
-                    player.velocity.x = 0;
-                }
-
-                if (
-                    collision.side === "top" &&
-                    object.canGoInside &&
-                    player.velocity.y >= 0 &&
-                    player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
-                ) {
-                    player.velocity.y = 0;
-                    player.position.y = object.position.y - player.size.height;
-                    player.movement.jumpTimes = 0;
-                    player.movement.dashCount = 0;
-                    player.movement.onGround = true;
+                    if (
+                        collision.side === "top" &&
+                        object.canGoInside &&
+                        player.velocity.y >= 0 &&
+                        player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
+                    ) {
+                        player.velocity.y = 0;
+                        player.position.y = object.position.y - player.size.height;
+                        player.movement.jumpTimes = 0;
+                        player.movement.dashCount = 0;
+                        player.movement.onGround = true;
+                    }
                 }
             }
         });
