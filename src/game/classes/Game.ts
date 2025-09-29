@@ -12,23 +12,21 @@ export default class Game {
     players: Characters[];
     gravity: number;
     dummy: Player;
+    attackConfig: { KNOCKBACK_FORCE_DIVISOR: number; DAMAGE_OVERLAP_FACTOR: number; MINIMUM_HEALTH: number };
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, map: GameMap) {
         this.canvas = canvas;
         this.context = context;
 
         this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
         this.map = map;
+        this.attackConfig = { KNOCKBACK_FORCE_DIVISOR: 2000, DAMAGE_OVERLAP_FACTOR: 100, MINIMUM_HEALTH: 1 };
 
         this.gravity = 15;
-        this.players = [
-            //new Fighter(this.canvas, this.context, 500, 300, this.gravity),
-            //new Fighter(this.canvas, this.context, 300, 100, this.gravity),
-            //new Fighter(this.canvas, this.context, 600, 100, this.gravity),
-        ];
-        //let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
-        //dummy.dummy = true;
-        //dummy.health.spawning = false;
-        //this.players.push(dummy);
+        this.players = [new Fighter(this.canvas, this.context, 500, 300, this.gravity)];
+        let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
+        dummy.dummy = true;
+        dummy.health.spawning = false;
+        this.players.push(dummy);
 
         window.addEventListener("gamepadconnected", (event) => {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
@@ -64,26 +62,29 @@ export default class Game {
 
                 if (collision && playerB.health.vulnerable) {
                     playerB.movement.knockedBack = true;
-                    let fucked = 1;
+                    const overlapSum = collision.overlapX + collision.overlapY;
+                    const hitValue = (overlapSum * playerB.health.points) / this.attackConfig.KNOCKBACK_FORCE_DIVISOR;
 
                     playerB.health.gotHit = true;
-                    playerB.health.points -= attackState.hitPoints;
+                    playerB.health.points -= Math.floor(
+                        attackState.hitPoints +
+                            (attackState.hitPoints * overlapSum) / this.attackConfig.DAMAGE_OVERLAP_FACTOR
+                    );
                     if (playerB.health.points <= 0) {
-                        playerB.health.points = 1;
-                        fucked = 5;
+                        playerB.health.points = this.attackConfig.MINIMUM_HEALTH;
                     }
 
                     if (attackState.directional.vertical === "up") {
-                        playerB.velocity.y -= attackState.knockBack.force * fucked;
+                        playerB.velocity.y -= attackState.knockBack.force / hitValue;
                     }
                     if (attackState.directional.vertical === "down") {
-                        playerB.velocity.y += attackState.knockBack.force * fucked;
+                        playerB.velocity.y += attackState.knockBack.force / hitValue;
                     }
                     if (attackState.directional.horizontal === "left") {
-                        playerB.velocity.x -= attackState.knockBack.force * fucked;
+                        playerB.velocity.x -= attackState.knockBack.force / hitValue;
                     }
                     if (attackState.directional.horizontal === "right") {
-                        playerB.velocity.x += attackState.knockBack.force * fucked;
+                        playerB.velocity.x += attackState.knockBack.force / hitValue;
                     }
                 }
             }
@@ -97,37 +98,39 @@ export default class Game {
                 const object = this.map.objects[i];
                 const collision = rectangleRectangle(player, object);
 
-                if (collision === "top" && !object.canGoInside) {
-                    player.velocity.y = 0;
-                    player.position.y = object.position.y - player.size.height;
-                    player.movement.jumpTimes = 0;
-                    player.movement.dashCount = 0;
-                    player.movement.onGround = true;
-                }
-                if (collision === "bottom" && !object.canGoInside) {
-                    player.position.y = object.position.y + object.size.height;
-                    player.velocity.y = 0;
-                }
-                if (collision === "left" && !object.canGoInside) {
-                    player.position.x = object.position.x - player.size.width;
-                    player.velocity.x = 0;
-                }
-                if (collision === "right" && !object.canGoInside) {
-                    player.position.x = object.position.x + object.size.width;
-                    player.velocity.x = 0;
-                }
+                if (collision) {
+                    if (collision.side === "top" && !object.canGoInside) {
+                        player.velocity.y = 0;
+                        player.position.y = object.position.y - player.size.height;
+                        player.movement.jumpTimes = 0;
+                        player.movement.dashCount = 0;
+                        player.movement.onGround = true;
+                    }
+                    if (collision.side === "bottom" && !object.canGoInside) {
+                        player.position.y = object.position.y + object.size.height;
+                        player.velocity.y = 0;
+                    }
+                    if (collision.side === "left" && !object.canGoInside) {
+                        player.position.x = object.position.x - player.size.width;
+                        player.velocity.x = 0;
+                    }
+                    if (collision.side === "right" && !object.canGoInside) {
+                        player.position.x = object.position.x + object.size.width;
+                        player.velocity.x = 0;
+                    }
 
-                if (
-                    collision === "top" &&
-                    object.canGoInside &&
-                    player.velocity.y >= 0 &&
-                    player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
-                ) {
-                    player.velocity.y = 0;
-                    player.position.y = object.position.y - player.size.height;
-                    player.movement.jumpTimes = 0;
-                    player.movement.dashCount = 0;
-                    player.movement.onGround = true;
+                    if (
+                        collision.side === "top" &&
+                        object.canGoInside &&
+                        player.velocity.y >= 0 &&
+                        player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
+                    ) {
+                        player.velocity.y = 0;
+                        player.position.y = object.position.y - player.size.height;
+                        player.movement.jumpTimes = 0;
+                        player.movement.dashCount = 0;
+                        player.movement.onGround = true;
+                    }
                 }
             }
         });
