@@ -25,15 +25,15 @@ export function rectangleRectangle(objectA: any, objectB: any) {
 
         if (overlapX < overlapY) {
             if (distanceX < 0) {
-                return "left";
+                return { side: "left", overlapX: overlapX, overlapY: overlapY };
             } else {
-                return "right";
+                return { side: "right", overlapX: overlapX, overlapY: overlapY };
             }
         } else {
             if (distanceY > 0) {
-                return "bottom";
+                return { side: "bottom", overlapX: overlapX, overlapY: overlapY };
             } else {
-                return "top";
+                return { side: "top", overlapX: overlapX, overlapY: overlapY };
             }
         }
     } else {
