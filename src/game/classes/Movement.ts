@@ -29,6 +29,7 @@ export default class Movement {
     knockedBack: boolean;
     knockedBackTimeDelta: number;
     knockedBackLengthTime: number;
+    dummy: boolean;
 
     constructor() {
         this.onGround = false;
@@ -59,8 +60,9 @@ export default class Movement {
         this.keys;
         this.frames;
         this.velocity;
+        this.dummy = false;
     }
-    update(keys: Keys, frames: FrameState, velocity: Velocity, dummy: boolean) {
+    update(keys: Keys, frames: FrameState, velocity: Velocity) {
         this.keys = keys;
         this.frames = frames;
         this.velocity = velocity;
@@ -97,7 +99,7 @@ export default class Movement {
             this.velocity.x = 0;
         }
 
-        if (!this.canMove || dummy) {
+        if (!this.canMove || this.dummy) {
             return;
         }
 

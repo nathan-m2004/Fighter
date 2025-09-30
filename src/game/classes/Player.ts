@@ -39,7 +39,6 @@ export default class Player {
     size: Size;
     frames: FrameState;
     keys: Keys;
-    dummy: boolean;
     movement: Movement;
     gamepad: { index: number };
     debugInfo: boolean;
@@ -81,7 +80,6 @@ export default class Player {
 
         this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
 
-        this.dummy = false;
         this.debugInfo = false;
 
         this.gamepad = { index: undefined };
