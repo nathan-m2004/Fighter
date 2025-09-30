@@ -24,7 +24,7 @@ export default class Game {
         this.gravity = 15;
         this.players = [new Fighter(this.canvas, this.context, 500, 300, this.gravity)];
         let dummy = new Fighter(this.canvas, this.context, 500, 0, this.gravity);
-        dummy.dummy = true;
+        dummy.movement.dummy = true;
         dummy.health.spawning = false;
         this.players.push(dummy);
 
@@ -77,10 +77,11 @@ export default class Game {
         this.displayHud();
         this.players.forEach((player) => {
             player.frames = this.frames;
-            if (player.dummy) {
-                player.movement.update(player.keys, player.frames, player.velocity, true);
+            this.collisions.collisionPlayerObject(player, this.map.objects);
+            if (player.movement.dummy) {
+                player.movement.update(player.keys, player.frames, player.velocity);
             } else {
-                player.movement.update(player.keys, player.frames, player.velocity, false);
+                player.movement.update(player.keys, player.frames, player.velocity);
                 player.gamepadUpdate();
                 player.handleAttacks();
                 player.countTimeHoldingKey();
@@ -89,9 +90,6 @@ export default class Game {
             player.checkIfOutOfBounds();
             this.players.forEach((playerB) => {
                 this.collisions.collisionAttackPlayer(player, playerB);
-            });
-            this.map.objects.forEach((object) => {
-                this.collisions.collisionPlayerObject(player, object);
             });
             player.physics();
             player.draw();
