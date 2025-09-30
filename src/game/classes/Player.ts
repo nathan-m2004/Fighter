@@ -144,7 +144,7 @@ export default class Player {
         };
         window.addEventListener("keydown", (event) => {
             Object.values(this.keys).forEach((action) => {
-                if (action.key === event.code) {
+                if (action.key === event.code && this.gamepad.index === undefined) {
                     if (!action.pressed) {
                         action.timeHoldingDelta = 0;
                         action.startFramehold = 0;
