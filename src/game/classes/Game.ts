@@ -30,13 +30,13 @@ export default class Game {
 
         window.addEventListener("gamepadconnected", (event) => {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
-            newPlayer.gamepad.index = event.gamepad.index;
+            newPlayer.controls.gamepad.index = event.gamepad.index;
             newPlayer.getPlayerImage();
             this.players.push(newPlayer);
         });
         window.addEventListener("gamepaddisconnected", (event) => {
             for (let i = 0; i < this.players.length; i++) {
-                if (this.players[i].gamepad.index === event.gamepad.index) {
+                if (this.players[i].controls.gamepad.index === event.gamepad.index) {
                     this.players.splice(i, 1);
                 }
             }
@@ -79,12 +79,12 @@ export default class Game {
             player.frames = this.frames;
             this.collisions.collisionPlayerObject(player, this.map.objects);
             if (player.movement.dummy) {
-                player.movement.update(player.keys, player.frames, player.velocity);
+                player.movement.update(player.controls.keys, player.frames, player.velocity);
             } else {
-                player.movement.update(player.keys, player.frames, player.velocity);
-                player.gamepadUpdate();
+                player.movement.update(player.controls.keys, player.frames, player.velocity);
+                player.controls.gamepadUpdate(this.frames);
                 player.handleAttacks();
-                player.countTimeHoldingKey();
+                player.controls.countTimeHoldingKey(this.frames);
             }
             player.checkVulnerability();
             player.checkIfOutOfBounds();

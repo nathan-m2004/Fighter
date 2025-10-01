@@ -1,4 +1,5 @@
-import { FrameState, Keys, Velocity } from "./Player";
+import { Keys } from "./Controls";
+import { FrameState, Velocity } from "./Player";
 
 export default class Movement {
     jumpForce: number;

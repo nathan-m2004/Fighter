@@ -1,4 +1,4 @@
-import { InputState } from "../classes/Player";
+import { InputState } from "../classes/Controls";
 import Fighter from "./Fighter";
 
 export type Characters = Fighter;

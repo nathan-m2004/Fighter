@@ -1,7 +1,6 @@
 import Fighter from "../characters/Fighter";
 import { rectangleRectangle } from "../collisions";
 import MapObject from "./MapObject";
-import Player from "./Player";
 
 export default class Collisions {
     KNOCKBACK_FORCE_DIVISOR: number;
@@ -85,7 +84,7 @@ export default class Collisions {
                     collision.side === "top" &&
                     object.canGoInside &&
                     player.velocity.y >= 0 &&
-                    player.keys.down.timeHoldingDelta <= player.keys.down.delayToLeavePlataform
+                    player.controls.keys.down.timeHoldingDelta <= player.controls.keys.down.delayToLeavePlataform
                 ) {
                     player.velocity.y = 0;
                     player.position.y = object.position.y - player.size.height;

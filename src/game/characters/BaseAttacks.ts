@@ -47,13 +47,18 @@ export default class BaseAttacks extends Player {
                 keys: {
                     pressed: [],
                     sideKeysPressed: false,
-                    notPressed: [this.keys.down, this.keys.up, this.keys.left, this.keys.right],
+                    notPressed: [
+                        this.controls.keys.down,
+                        this.controls.keys.up,
+                        this.controls.keys.left,
+                        this.controls.keys.right,
+                    ],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -70,13 +75,13 @@ export default class BaseAttacks extends Player {
                 keys: {
                     pressed: [],
                     sideKeysPressed: true,
-                    notPressed: [this.keys.down, this.keys.up],
+                    notPressed: [this.controls.keys.down, this.controls.keys.up],
                 },
                 onGround: { checkFor: undefined, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -90,12 +95,12 @@ export default class BaseAttacks extends Player {
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
                 directional: { bool: true, horizontal: this.movement.direction, vertical: "up" },
-                keys: { pressed: [this.keys.up], sideKeysPressed: true, notPressed: [] },
+                keys: { pressed: [this.controls.keys.up], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: undefined, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -109,12 +114,12 @@ export default class BaseAttacks extends Player {
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
                 directional: { bool: true, horizontal: this.movement.direction, vertical: "down" },
-                keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
+                keys: { pressed: [this.controls.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -128,12 +133,12 @@ export default class BaseAttacks extends Player {
                 width: this.size.width,
                 height: this.size.height + this.attack.size,
                 directional: { bool: false, horizontal: undefined, vertical: "down" },
-                keys: { pressed: [this.keys.down], sideKeysPressed: false, notPressed: [] },
+                keys: { pressed: [this.controls.keys.down], sideKeysPressed: false, notPressed: [] },
                 onGround: { checkFor: false, noCheck: false },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -147,12 +152,12 @@ export default class BaseAttacks extends Player {
                 width: this.size.width + this.attack.size,
                 height: this.size.height + this.attack.size,
                 directional: { bool: true, horizontal: this.movement.direction, vertical: "down" },
-                keys: { pressed: [this.keys.down], sideKeysPressed: true, notPressed: [] },
+                keys: { pressed: [this.controls.keys.down], sideKeysPressed: true, notPressed: [] },
                 onGround: { checkFor: true, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: {
                     x: -this.attack.groundAttackMovement.x,
                     y: -this.attack.groundAttackMovement.y,
@@ -171,15 +176,15 @@ export default class BaseAttacks extends Player {
                 height: this.size.height + this.attack.size,
                 directional: { bool: false, horizontal: undefined, vertical: "down" },
                 keys: {
-                    pressed: [this.keys.down],
+                    pressed: [this.controls.keys.down],
                     sideKeysPressed: false,
-                    notPressed: [this.keys.left, this.keys.right],
+                    notPressed: [this.controls.keys.left, this.controls.keys.right],
                 },
                 onGround: { checkFor: true, noCheck: false },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: 0, y: -this.attack.groundAttackMovement.y, noChange: false },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -194,15 +199,15 @@ export default class BaseAttacks extends Player {
                 height: this.size.height + this.attack.size,
                 directional: { bool: false, horizontal: undefined, vertical: "up" },
                 keys: {
-                    pressed: [this.keys.up],
+                    pressed: [this.controls.keys.up],
                     sideKeysPressed: false,
-                    notPressed: [this.keys.left, this.keys.right],
+                    notPressed: [this.controls.keys.left, this.controls.keys.right],
                 },
                 onGround: { checkFor: false, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
                 attacking: { bool: false, hit: false, framesToHitDelta: 1 },
-                attackKey: this.keys.lightAttack,
+                attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
@@ -219,7 +224,9 @@ export default class BaseAttacks extends Player {
             const keysPressed = attack.keys.pressed.every((element) => element.pressed === true);
             const keysNotPressed = attack.keys.notPressed.every((element) => element.pressed === false);
             const groundCheck = attack.onGround.noCheck ? true : attack.onGround.checkFor === this.movement.onGround;
-            const sideKeyCheck = attack.keys.sideKeysPressed ? this.keys.left.pressed || this.keys.right.pressed : true;
+            const sideKeyCheck = attack.keys.sideKeysPressed
+                ? this.controls.keys.left.pressed || this.controls.keys.right.pressed
+                : true;
 
             if (
                 groundCheck &&
@@ -315,7 +322,7 @@ export default class BaseAttacks extends Player {
     handleAttacks() {
         this.attack.attackFrameDelta += this.frames.deltaTime;
 
-        if (this.keys.lightAttack.pressed) {
+        if (this.controls.keys.lightAttack.pressed) {
             this.checkMap();
         } else if (this.attack.current) {
             this.checkMap();
