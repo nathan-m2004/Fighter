@@ -81,6 +81,8 @@ export default class Player {
             this.context.fillText(`Stopping: (${this.movement.stopping})`, 260, 60);
             this.context.fillText(`Dashing: (${this.movement.dashing})`, 260, 80);
             this.context.fillText(`Direction: (${this.movement.direction})`, 260, 100);
+            this.context.fillText(`Accelerating: (${this.movement.accelerating})`, 260, 120);
+            this.context.fillText(`FullSpeed: (${this.movement.fullSpeed})`, 260, 140);
         }
     }
 }
