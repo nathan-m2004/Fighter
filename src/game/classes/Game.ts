@@ -46,7 +46,7 @@ export default class Game {
         this.players.forEach((player, index) => {
             const width = player.size.width * 0.8;
             const height = player.size.height * 0.8;
-            this.context.fillStyle = player.color;
+            this.context.fillStyle = player.animation.color;
             this.context.fillRect(10, height * index + 10 * index + 10, width, height);
 
             this.context.fillStyle = "white";
@@ -86,8 +86,8 @@ export default class Game {
                 player.handleAttacks();
                 player.controls.countTimeHoldingKey(this.frames);
             }
-            player.checkVulnerability();
-            player.checkIfOutOfBounds();
+            player.health.checkVulnerability(player.frames);
+            player.health.checkIfOutOfBounds(player.position, player.velocity);
             this.players.forEach((playerB) => {
                 this.collisions.collisionAttackPlayer(player, playerB);
             });

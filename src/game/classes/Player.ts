@@ -1,6 +1,7 @@
 import { randomNumber } from "../util";
 import Animations from "./Animations";
 import Controls from "./Controls";
+import Health from "./Health";
 import Movement from "./Movement";
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
@@ -14,7 +15,6 @@ export type Size = { width: number; height: number };
 export default class Player {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
-    color: string;
     position: Position;
     velocity: Velocity;
     gravity: number;
@@ -22,87 +22,26 @@ export default class Player {
     frames: FrameState;
     movement: Movement;
     debugInfo: boolean;
-    health: {
-        points: number;
-        vulnerable: boolean;
-        vulnerableTimeDelta: number;
-        hitVulnerabilityTimeDelta: number;
-        gotHit: boolean;
-        spawning: boolean;
-        spawnVulnerabilityTimeDelta: number;
-        timesKilled: number;
-    };
     outOfBounds: number;
     controls: Controls;
     animation: Animations;
+    health: Health;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
-        this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
 
-        this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
+        this.frames = { animationFrame: 0, currentFrame: 0, lastFrame: 0, deltaTime: 0 };
         this.position = { x: x, y: y };
         this.velocity = { x: 0, y: 0 };
         this.size = { width: 80, height: 80 };
-        this.health = {
-            points: 100,
-            vulnerable: true,
-            vulnerableTimeDelta: 0,
-            hitVulnerabilityTimeDelta: 4,
-            gotHit: false,
-            spawning: true,
-            spawnVulnerabilityTimeDelta: 15,
-            timesKilled: 0,
-        };
-
-        this.outOfBounds = 2000;
         this.gravity = gravity;
-        this.movement = new Movement();
 
         this.debugInfo = false;
 
         this.controls = new Controls();
+        this.movement = new Movement();
         this.animation = new Animations(this.size);
-    }
-    checkVulnerability() {
-        if (this.health.gotHit) {
-            this.health.vulnerableTimeDelta += this.frames.deltaTime;
-            this.health.vulnerable = false;
-            if (this.health.vulnerableTimeDelta >= this.health.hitVulnerabilityTimeDelta) {
-                this.health.vulnerableTimeDelta = 0;
-                this.health.vulnerable = true;
-                this.health.gotHit = false;
-            }
-        }
-        if (this.health.spawning) {
-            this.health.vulnerableTimeDelta += this.frames.deltaTime;
-            this.health.vulnerable = false;
-            if (this.health.vulnerableTimeDelta >= this.health.spawnVulnerabilityTimeDelta) {
-                this.health.vulnerableTimeDelta = 0;
-                this.health.vulnerable = true;
-                this.health.spawning = false;
-            }
-        }
-    }
-    checkIfOutOfBounds() {
-        if (this.position.x >= this.outOfBounds || this.position.x <= -this.outOfBounds) {
-            this.position.x = 500;
-            this.position.y = 100;
-            this.velocity.x = 0;
-            this.velocity.y = 0;
-            this.health.spawning = true;
-            this.health.timesKilled += 1;
-            this.health.points = 100;
-        }
-        if (this.position.y >= this.outOfBounds || this.position.y <= -this.outOfBounds) {
-            this.position.x = 500;
-            this.position.y = 100;
-            this.velocity.x = 0;
-            this.velocity.y = 0;
-            this.health.spawning = true;
-            this.health.timesKilled += 1;
-            this.health.points = 100;
-        }
+        this.health = new Health();
     }
     physics() {
         if (!this.movement.dashing) {
@@ -113,7 +52,7 @@ export default class Player {
         this.position.y += this.velocity.y * this.frames.deltaTime;
     }
     draw() {
-        this.context.fillStyle = this.color;
+        this.context.fillStyle = this.animation.color;
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
         if (this.animation.image) {
