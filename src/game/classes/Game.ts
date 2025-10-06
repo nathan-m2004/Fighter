@@ -31,7 +31,7 @@ export default class Game {
         window.addEventListener("gamepadconnected", (event) => {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
             newPlayer.controls.gamepad.index = event.gamepad.index;
-            newPlayer.getPlayerImage();
+            newPlayer.animation.getPlayerImage();
             this.players.push(newPlayer);
         });
         window.addEventListener("gamepaddisconnected", (event) => {
@@ -55,9 +55,9 @@ export default class Game {
 
             this.context.fillText(`Vida: (${player.health.points})`, 90, height * index + 10 * index + 60);
 
-            if (player.image.image) {
+            if (player.animation.image) {
                 this.context.drawImage(
-                    player.image.image,
+                    player.animation.image,
                     10 + 4,
                     height * index + 10 * index + 10 + 4,
                     width - 8,

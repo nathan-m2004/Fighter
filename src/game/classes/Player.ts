@@ -1,7 +1,7 @@
 import { randomNumber } from "../util";
+import Animations from "./Animations";
 import Controls from "./Controls";
 import Movement from "./Movement";
-import axios from "axios";
 
 export type FrameState = { animationFrame: number; currentFrame: number; lastFrame: number; deltaTime: number };
 
@@ -22,7 +22,6 @@ export default class Player {
     frames: FrameState;
     movement: Movement;
     debugInfo: boolean;
-    image: { api: string; url: string; image: HTMLImageElement };
     health: {
         points: number;
         vulnerable: boolean;
@@ -35,6 +34,7 @@ export default class Player {
     };
     outOfBounds: number;
     controls: Controls;
+    animation: Animations;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, x: number, y: number, gravity: number) {
         this.canvas = canvas;
         this.context = context;
@@ -59,18 +59,10 @@ export default class Player {
         this.gravity = gravity;
         this.movement = new Movement();
 
-        this.image = { api: "https://api.thecatapi.com/v1/images/search", url: undefined, image: undefined };
-
         this.debugInfo = false;
 
         this.controls = new Controls();
-    }
-    getPlayerImage() {
-        axios.get(this.image.api).then((response) => {
-            this.image.url = response.data[0].url;
-            this.image.image = new Image(this.size.width - 10, this.size.height - 10);
-            this.image.image.src = this.image.url;
-        });
+        this.animation = new Animations(this.size);
     }
     checkVulnerability() {
         if (this.health.gotHit) {
@@ -124,9 +116,9 @@ export default class Player {
         this.context.fillStyle = this.color;
         this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
-        if (this.image.image) {
+        if (this.animation.image) {
             this.context.drawImage(
-                this.image.image,
+                this.animation.image,
                 this.position.x + 5,
                 this.position.y + 5,
                 this.size.height - 10,
