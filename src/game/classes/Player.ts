@@ -35,7 +35,7 @@ export default class Player {
         this.size = { width: 80, height: 80 };
         this.gravity = gravity;
 
-        this.debugInfo = true;
+        this.debugInfo = false;
 
         this.controls = new Controls();
         this.movement = new Movement();

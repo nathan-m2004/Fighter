@@ -6,21 +6,34 @@ export default class PlayerManager {
     context: CanvasRenderingContext2D;
     players: Characters[];
     gravity: number;
+    keyboardPlayer: boolean;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, players: Characters[], gravity: number) {
         this.canvas = canvas;
         this.context = context;
         this.gravity = gravity;
         this.players = players;
+        this.keyboardPlayer = false;
 
         this.initializeEvents();
     }
     private initializeEvents() {
+        window.addEventListener("keydown", (event) => {
+            this.connectKeyboardPlayer(event);
+        });
         window.addEventListener("gamepadconnected", (event) => {
             this.connectPlayer(event);
         });
         window.addEventListener("gamepaddisconnected", (event) => {
             this.disconnectPlayer(event);
         });
+    }
+    private connectKeyboardPlayer(event: KeyboardEvent) {
+        if (!this.keyboardPlayer) {
+            const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
+            newPlayer.animation.getPlayerImage();
+            this.players.push(newPlayer);
+            this.keyboardPlayer = true;
+        }
     }
     private connectPlayer(event: GamepadEvent) {
         const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
