@@ -35,7 +35,7 @@ export default class Player {
         this.size = { width: 80, height: 80 };
         this.gravity = gravity;
 
-        this.debugInfo = false;
+        this.debugInfo = true;
 
         this.controls = new Controls();
         this.movement = new Movement();
@@ -74,13 +74,15 @@ export default class Player {
             this.context.font = "16px Arial"; // Set the font and size
             this.context.fillText(
                 `Position: (${this.position.x.toFixed(0)}, ${this.position.y.toFixed(0)}), onGround: (${this.movement.onGround})`,
-                10,
+                260,
                 20
             );
-            this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 10, 40);
-            this.context.fillText(`Stopping: (${this.movement.stopping})`, 10, 60);
-            this.context.fillText(`Dashing: (${this.movement.dashing})`, 10, 80);
-            this.context.fillText(`Direction: (${this.movement.direction})`, 10, 100);
+            this.context.fillText(`Velocity: (${this.velocity.x.toFixed(1)}, ${this.velocity.y.toFixed(1)})`, 260, 40);
+            this.context.fillText(`Stopping: (${this.movement.stopping})`, 260, 60);
+            this.context.fillText(`Dashing: (${this.movement.dashing})`, 260, 80);
+            this.context.fillText(`Direction: (${this.movement.direction})`, 260, 100);
+            this.context.fillText(`Accelerating: (${this.movement.accelerating})`, 260, 120);
+            this.context.fillText(`FullSpeed: (${this.movement.fullSpeed})`, 260, 140);
         }
     }
 }
