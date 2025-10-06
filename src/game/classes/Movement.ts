@@ -34,19 +34,23 @@ export default class Movement {
 
     constructor() {
         this.onGround = false;
+
         this.jumpForce = 95;
         this.jumpTimes = 0;
         this.jumpTimeDelta = 0;
         this.jumpDelay = 5;
+
         this.canMove = true;
         this.direction = "right";
         this.speed = 50;
         this.maxSpeed = 80;
+
         this.stopping = false;
         this.stopped = true;
-        this.stoppingPower = 5;
+        this.stoppingPower = 15;
         this.stoppingTimeDelta = 0;
-        this.stoppingLengthDelta = 0.8;
+        this.stoppingLengthDelta = 1;
+
         this.dashing = false;
         this.dashCount = 0;
         this.dashMax = 1;
@@ -54,6 +58,7 @@ export default class Movement {
         this.dashTimeDelta = 0;
         this.dashLenghtDelta = 2.5;
         this.dashTimeToStopMovement = 1.5;
+
         this.knockedBack = false;
         this.knockedBackLengthTime = 2;
         this.knockedBackTimeDelta = 0;
@@ -92,7 +97,18 @@ export default class Movement {
             this.stoppingTimeDelta = 0;
         }
         if (this.stopping) {
-            this.velocity.x *= this.stoppingPower * this.frames.deltaTime;
+            if (this.velocity.x > 0) {
+                this.velocity.x -= this.stoppingPower * this.frames.deltaTime;
+                if (this.velocity.x < 0) {
+                    this.velocity.x = 0;
+                }
+            }
+            if (this.velocity.x < 0) {
+                this.velocity.x += this.stoppingPower * this.frames.deltaTime;
+                if (this.velocity.x > 0) {
+                    this.velocity.x = 0;
+                }
+            }
         }
         if (this.stoppingLengthDelta <= this.stoppingTimeDelta && this.stopping) {
             this.stopping = false;
