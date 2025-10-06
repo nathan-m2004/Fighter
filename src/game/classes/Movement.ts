@@ -52,7 +52,7 @@ export default class Movement {
 
         this.fullSpeed = false;
         this.speed = 1500;
-        this.maxSpeed = 8000;
+        this.maxSpeed = 1500;
         this.accelerating = false;
         this.accelerationSpeed = 600;
         this.acceleratingLengthDelta = 1.2;
@@ -60,9 +60,9 @@ export default class Movement {
 
         this.stopping = false;
         this.stopped = true;
-        this.stoppingPower = 15;
+        this.stoppingPower = 25;
         this.stoppingTimeDelta = 0;
-        this.stoppingLengthDelta = 1;
+        this.stoppingLengthDelta = 1.2;
 
         this.dashing = false;
         this.dashCount = 0;
@@ -244,6 +244,9 @@ export default class Movement {
                 this.velocity.y = 0;
             } else {
                 this.velocity.y += this.downSpeed * this.frames.deltaTime;
+                if (velocity.y >= this.maxSpeed) {
+                    velocity.y = this.maxSpeed;
+                }
             }
         }
     }
