@@ -57,6 +57,7 @@ export default class Game {
             });
             player.physics();
             player.draw();
+            player.animation.animation();
         });
 
         this.frames.animationFrame = window.requestAnimationFrame((currentFrame) => {

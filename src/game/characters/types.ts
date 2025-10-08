@@ -1,5 +1,5 @@
 import { InputState } from "../classes/Controls";
-import Fighter from "./Fighter";
+import Fighter from "./Fighter/Fighter";
 
 export type Characters = Fighter;
 

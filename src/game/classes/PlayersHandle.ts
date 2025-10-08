@@ -1,4 +1,4 @@
-import Fighter from "../characters/Fighter";
+import Fighter from "../characters/Fighter/Fighter";
 import { Characters } from "../characters/types";
 
 export default class PlayerManager {
