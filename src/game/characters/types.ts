@@ -30,6 +30,7 @@ export type AttackStates = {
     attackFrameDelta: number;
     groundAttackMovement: { x: number; y: number };
     readonly current: Attack;
+    readonly current_key: string;
     readonly currentsPositionSize: {};
     map: { [key: string]: Attack };
 

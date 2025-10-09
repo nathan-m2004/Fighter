@@ -21,6 +21,14 @@ export default class BaseAttacks extends Player {
                     }
                 }
             },
+            get current_key() {
+                for (const key in this.map) {
+                    const attack = this.map[key];
+                    if (attack.attacking.bool) {
+                        return key;
+                    }
+                }
+            },
             get currentsPositionSize() {
                 for (const key in this.map) {
                     const attack = this.map[key];

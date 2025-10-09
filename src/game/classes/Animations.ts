@@ -1,6 +1,8 @@
 import axios from "axios";
 import { FrameState, Position, Size } from "./Player";
 import { randomNumber } from "../util";
+import Movement from "./Movement";
+import { Attack } from "../characters/types";
 
 export type AnimationOptions = {
     name: string;
@@ -24,7 +26,6 @@ export class Animation {
     frame_height: number;
     animation_length: number;
     animation_frame_map: number[];
-    isLoop: boolean;
     frames: FrameState;
     deltaTimer: number;
     animation_name: string;
@@ -54,13 +55,14 @@ export class Animation {
         this.animation_name = options.name;
         this.animation_frame_map = options.animation_frame_map;
     }
-    frameLoop(frames: FrameState) {
+    frameLoop(frames: FrameState, callbackFn: () => void) {
         this.frames = frames;
         this.deltaTimer += this.frames.deltaTime;
         if (this.frame_count > this.frame_length) {
             this.frame_count = 0;
+            callbackFn();
         }
-        if (this.animation_length / this.animation_frame_map[this.frame_count] < this.deltaTimer) {
+        if (this.animation_length * this.animation_frame_map[this.frame_count] < this.deltaTimer) {
             this.frame_count++;
             this.deltaTimer = 0;
         }
@@ -106,6 +108,7 @@ export default class Animations {
     position: Position;
     frames: FrameState;
     animations: Animation[];
+    current_animation_name: string;
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
@@ -120,11 +123,38 @@ export default class Animations {
         this.position = position;
         this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
         this.animations;
+        this.current_animation_name = "standing";
     }
     drawLoop(direction: string) {
         this.animations.forEach((animation) => {
-            animation.frameLoop(this.frames);
-            animation.draw(this.position, this.size, direction);
+            if (animation.animation_name === this.current_animation_name) {
+                animation.frameLoop(this.frames, () => {
+                    this.current_animation_name = "standing";
+                });
+                animation.draw(this.position, this.size, direction);
+            }
         });
+    }
+    checkCurrent(movement: Movement, currentAttack: string) {
+        console.log(this.current_animation_name);
+        for (let i = 0; i < this.animations.length; i++) {
+            const animation = this.animations[i];
+            if (!currentAttack) {
+            } else if (currentAttack === animation.animation_name) {
+                if (animation.animation_name === this.current_animation_name) {
+                    animation.frame_count = 0;
+                }
+                this.current_animation_name = animation.animation_name;
+                break;
+            }
+            Object.entries(movement).forEach(([key, value]) => {
+                if (value === true && key === animation.animation_name) {
+                    if (animation.animation_name === this.current_animation_name) {
+                        animation.frame_count = 0;
+                    }
+                    this.current_animation_name = animation.animation_name;
+                }
+            });
+        }
     }
 }

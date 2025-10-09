@@ -16,7 +16,7 @@ export default class Fighter extends BaseAttacks {
                 frame_width: 370,
                 frame_height: 410,
                 frame_position_offset: { x: 0, y: 0 },
-                animation_length: 0.6,
+                animation_length: 3,
                 animation_frame_map: [0.12, 0.3, 0.45, 0.6, 0.8, 1],
             },
             punching: {
@@ -26,8 +26,8 @@ export default class Fighter extends BaseAttacks {
                 frame_width: 370,
                 frame_height: 410,
                 frame_position_offset: { x: 5, y: 0 },
-                animation_length: 0.2,
-                animation_frame_map: [0.05, 0.1, 0.2, 0.4, 0.45, 0.5, 0.6, 1],
+                animation_length: 3,
+                animation_frame_map: [0.05, 0.1, 0.2, 0.3, 0.45, 0.5, 0.55, 1],
             },
         };
 
