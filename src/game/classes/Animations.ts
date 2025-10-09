@@ -43,7 +43,6 @@ class Animation {
         this.isLoop = true;
     }
     frameLoop(frames: FrameState) {
-        console.log(this.frame_count);
         this.frames = frames;
         this.deltaTimer += this.frames.deltaTime;
         if (this.frame_count > this.frame_length) {
@@ -59,18 +58,36 @@ class Animation {
             this.deltaTimer = 0;
         }
     }
-    draw(position: Position, size: Size) {
-        this.context.drawImage(
-            this.sprite,
-            this.frame_width * this.frame_count,
-            0,
-            this.frame_width,
-            this.frame_height,
-            position.x,
-            position.y,
-            size.width,
-            size.height
-        );
+    draw(position: Position, size: Size, direction: string) {
+        if (direction === "right") {
+            this.context.drawImage(
+                this.sprite,
+                this.frame_width * this.frame_count,
+                0,
+                this.frame_width,
+                this.frame_height,
+                position.x,
+                position.y,
+                size.width,
+                size.height
+            );
+        } else if (direction === "left") {
+            this.context.save();
+            this.context.translate(position.x + size.width, position.y);
+            this.context.scale(-1, 1);
+            this.context.drawImage(
+                this.sprite,
+                this.frame_width * this.frame_count,
+                0,
+                this.frame_width,
+                this.frame_height,
+                0,
+                0,
+                size.width,
+                size.height
+            );
+            this.context.restore();
+        }
     }
 }
 
@@ -112,9 +129,9 @@ export default class Animations {
             0.6
         );
     }
-    animation() {
+    animation(direction: string) {
         this.test.frameLoop(this.frames);
-        this.test.draw(this.position, this.size);
+        this.test.draw(this.position, this.size, direction);
     }
     getPlayerImage() {
         axios.get(this.api).then((response) => {
