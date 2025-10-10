@@ -253,7 +253,7 @@ export default class Movement {
         }
     }
 
-    get booleans(): {} {
+    get booleans(): { [key: string]: boolean } {
         const booleanEntries = Object.entries(this).filter(([key, value]) => {
             return typeof value === "boolean";
         });
