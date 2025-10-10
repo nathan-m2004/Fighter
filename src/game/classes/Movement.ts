@@ -1,6 +1,8 @@
 import { Keys } from "./Controls";
 import { FrameState, Velocity } from "./Player";
 
+// THIS CLASS IS DOGSHIT
+
 export default class Movement {
     jumpForce: number;
     jumpTimes: number;
@@ -249,5 +251,13 @@ export default class Movement {
                 }
             }
         }
+    }
+
+    get booleans(): { [key: string]: boolean } {
+        const booleanEntries = Object.entries(this).filter(([key, value]) => {
+            return typeof value === "boolean";
+        });
+
+        return Object.fromEntries(booleanEntries);
     }
 }

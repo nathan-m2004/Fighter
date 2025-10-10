@@ -1,5 +1,5 @@
 import { InputState } from "../classes/Controls";
-import Fighter from "./Fighter";
+import Fighter from "./Fighter/Fighter";
 
 export type Characters = Fighter;
 
@@ -30,6 +30,7 @@ export type AttackStates = {
     attackFrameDelta: number;
     groundAttackMovement: { x: number; y: number };
     readonly current: Attack;
+    readonly current_key: string;
     readonly currentsPositionSize: {};
     map: { [key: string]: Attack };
 

@@ -1,4 +1,4 @@
-import Fighter from "../characters/Fighter";
+import Fighter from "../characters/Fighter/Fighter";
 import { rectangleRectangle } from "../collisions";
 import MapObject from "./MapObject";
 

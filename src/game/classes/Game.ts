@@ -57,6 +57,7 @@ export default class Game {
             });
             player.physics();
             player.draw();
+            player.animation.drawLoop();
         });
 
         this.frames.animationFrame = window.requestAnimationFrame((currentFrame) => {

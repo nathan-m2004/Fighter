@@ -21,6 +21,14 @@ export default class BaseAttacks extends Player {
                     }
                 }
             },
+            get current_key() {
+                for (const key in this.map) {
+                    const attack = this.map[key];
+                    if (attack.attacking.bool) {
+                        return key;
+                    }
+                }
+            },
             get currentsPositionSize() {
                 for (const key in this.map) {
                     const attack = this.map[key];
@@ -57,13 +65,13 @@ export default class BaseAttacks extends Player {
                 onGround: { checkFor: undefined, noCheck: true },
                 hitPoints: 3,
                 knockBack: { force: 200, stopTime: 10 },
-                attacking: { bool: false, hit: false, framesToHitDelta: 1 },
+                attacking: { bool: false, hit: false, framesToHitDelta: 1.5 },
                 attackKey: this.controls.keys.lightAttack,
                 velocity: { x: undefined, y: undefined, noChange: true },
                 firstFrame: true,
                 frameTimeDelta: 0,
                 frameLengthDelta: 3,
-                frameToUnlockMovementDelta: 1.2,
+                frameToUnlockMovementDelta: 2,
                 stopMovement: { bool: false, frameDelta: 0.5 },
             },
             side: {

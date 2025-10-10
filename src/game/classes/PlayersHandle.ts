@@ -1,4 +1,4 @@
-import Fighter from "../characters/Fighter";
+import Fighter from "../characters/Fighter/Fighter";
 import { Characters } from "../characters/types";
 
 export default class PlayerManager {
@@ -30,7 +30,6 @@ export default class PlayerManager {
     private connectKeyboardPlayer(event: KeyboardEvent) {
         if (!this.keyboardPlayer) {
             const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
-            newPlayer.animation.getPlayerImage();
             this.players.push(newPlayer);
             this.keyboardPlayer = true;
         }
@@ -38,7 +37,6 @@ export default class PlayerManager {
     private connectPlayer(event: GamepadEvent) {
         const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
         newPlayer.controls.gamepad.index = event.gamepad.index;
-        newPlayer.animation.getPlayerImage();
         this.players.push(newPlayer);
     }
     private disconnectPlayer(event: GamepadEvent) {
