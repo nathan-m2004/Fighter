@@ -1,17 +1,18 @@
-import axios from "axios";
 import { FrameState, Position, Size } from "./Player";
 import { randomNumber } from "../util";
 import Movement from "./Movement";
-import { Attack } from "../characters/types";
+import { AttackStates } from "../characters/types";
 
 export type AnimationOptions = {
     name: string;
+    states: { true: string[]; false: string[] };
     sprite_sheet_url: string;
     frame_length: number;
     frame_width: number;
     frame_height: number;
     frame_position_offset: { x: number; y: number };
     animation_frame_map: number[];
+    lock: boolean;
 };
 
 export class Animation {
@@ -27,16 +28,20 @@ export class Animation {
     animation_frame_map: number[];
     frames: FrameState;
     deltaTimer: number;
-    animation_name: string;
+    states: { true: string[]; false: string[] };
     frame_position_offset: { x: number; y: number };
     movement: Movement;
     lockedDirection: string | undefined;
+    attack: AttackStates;
+    name: string;
+    lock: boolean;
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
         frames: FrameState,
         options: AnimationOptions,
-        movement: Movement
+        movement: Movement,
+        attack: AttackStates
     ) {
         this.canvas = canvas;
         this.context = context;
@@ -53,10 +58,13 @@ export class Animation {
         this.sprite = new Image();
         this.sprite.src = this.sprite_sheet_url;
 
+        this.name = options.name;
+        this.attack = attack;
         this.movement = movement;
         this.lockedDirection;
+        this.lock = options.lock;
 
-        this.animation_name = options.name;
+        this.states = options.states;
         this.animation_frame_map = options.animation_frame_map;
     }
     frameLoop(frames: FrameState, callbackFn: () => void) {
@@ -72,7 +80,7 @@ export class Animation {
             this.deltaTimer = 0;
         }
     }
-    draw(position: Position, size: Size, direction: string) {
+    draw(position: Position, size: Size) {
         const condition = this.lockedDirection ? this.lockedDirection : this.movement.direction;
         if (condition === "right") {
             this.context.drawImage(
@@ -114,7 +122,8 @@ export default class Animations {
     position: Position;
     frames: FrameState;
     animations: Animation[];
-    current_animation_name: string;
+    playing_animation: string;
+    lockedAnimation: string | undefined;
     constructor(
         canvas: HTMLCanvasElement,
         context: CanvasRenderingContext2D,
@@ -129,41 +138,51 @@ export default class Animations {
         this.position = position;
         this.color = `rgb(${randomNumber(70, 255)}, ${randomNumber(50, 140)}, ${randomNumber(70, 255)})`;
         this.animations;
-        this.current_animation_name = "standing";
+        this.playing_animation = "standing";
+        this.lockedAnimation = undefined;
     }
-    drawLoop(direction: string) {
-        this.animations.forEach((animation) => {
-            if (animation.animation_name === this.current_animation_name) {
-                animation.frameLoop(this.frames, () => {
-                    this.current_animation_name = "standing";
+    drawLoop() {
+        if (this.lockedAnimation) {
+            const lockedAnim = this.animations.find((anim) => anim.name === this.lockedAnimation);
+            if (lockedAnim) {
+                lockedAnim.frameLoop(this.frames, () => {
+                    this.lockedAnimation = undefined;
+                    lockedAnim.frame_count = 0;
                 });
-                animation.draw(this.position, this.size, direction);
+                lockedAnim.draw(this.position, this.size);
             }
-        });
-    }
-    checkCurrent(movement: Movement, currentAttack: string) {
-        for (let i = 0; i < this.animations.length; i++) {
-            const animation = this.animations[i];
-            if (!currentAttack) {
-                return;
-            } else if (
-                currentAttack === animation.animation_name &&
-                this.current_animation_name !== animation.animation_name
-            ) {
-                this.current_animation_name = animation.animation_name;
-                animation.lockedDirection = animation.movement.direction;
-                break;
-            }
-            Object.entries(movement).forEach(([key, value]) => {
-                if (
-                    value === true &&
-                    key === animation.animation_name &&
-                    this.current_animation_name !== animation.animation_name
-                ) {
-                    this.current_animation_name = animation.animation_name;
-                    animation.lockedDirection = animation.movement.direction;
+        } else {
+            this.animations.forEach((animation) => {
+                const check = this.checkStates(animation);
+
+                if (check) {
+                    this.playing_animation = animation.name;
+
+                    if (animation.lock) {
+                        this.lockedAnimation = animation.name;
+                        animation.lockedDirection = animation.movement.direction;
+                    }
+                    animation.frameLoop(this.frames, () => {});
+                    animation.draw(this.position, this.size);
                 }
             });
         }
+    }
+    checkStates(animation: Animation) {
+        const trueStates = animation.states.true.every((state) => {
+            if (animation.attack.map[state] && animation.attack.map[state].attacking.bool === true) {
+                return true;
+            } else if (animation.movement.booleans[state] === true) {
+                return true;
+            }
+        });
+        const falseStates = animation.states.false.every((state) => {
+            if (animation.attack.map[state] && animation.attack.map[state].attacking.bool === false) {
+                return true;
+            } else if (animation.movement.booleans[state] === false) {
+                return true;
+            }
+        });
+        return falseStates === true && trueStates === true;
     }
 }

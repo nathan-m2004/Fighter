@@ -57,8 +57,7 @@ export default class Game {
             });
             player.physics();
             player.draw();
-            player.animation.checkCurrent(player.movement, player.attack.current_key);
-            player.animation.drawLoop(player.movement.direction);
+            player.animation.drawLoop();
         });
 
         this.frames.animationFrame = window.requestAnimationFrame((currentFrame) => {

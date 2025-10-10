@@ -11,27 +11,33 @@ export default class Fighter extends BaseAttacks {
         this.animation_map = {
             standing: {
                 name: "standing",
+                states: { true: ["onGround", "stopped"], false: ["noMovement"] },
                 sprite_sheet_url: "src/game/characters/Fighter/sprite_zumbi.png",
                 frame_length: 4,
                 frame_width: 370,
                 frame_height: 410,
                 frame_position_offset: { x: 0, y: 0 },
                 animation_frame_map: [0, 1, 1.5, 2.5, 3],
+                lock: false,
             },
             punching: {
-                name: "noMovement",
+                name: "punching",
+                states: { true: ["noMovement"], false: [] },
                 sprite_sheet_url: "src/game/characters/Fighter/sprite_zumbi.png",
                 frame_length: 5,
                 frame_width: 370,
                 frame_height: 410,
                 frame_position_offset: { x: 5, y: 0 },
-                animation_frame_map: [0, 0.2, 0.3, 1, 1.2, 1.5],
+                animation_frame_map: [0, 0.2, 0.3, 1, 1.5, 3],
+                lock: true,
             },
         };
 
         this.animation.animations = [];
         Object.entries(this.animation_map).forEach(([key, value]) => {
-            this.animation.animations.push(new Animation(this.canvas, this.context, this.frames, value, this.movement));
+            this.animation.animations.push(
+                new Animation(this.canvas, this.context, this.frames, value, this.movement, this.attack)
+            );
         });
     }
 }
