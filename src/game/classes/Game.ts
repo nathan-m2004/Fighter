@@ -67,6 +67,7 @@ export default class Game {
         this.map.draw();
         this.players.forEach((player) => {
             player.draw();
+            player.drawHitbox();
             player.animation.drawLoop();
         });
 

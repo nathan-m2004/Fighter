@@ -315,15 +315,19 @@ export default class BaseAttacks extends Player {
                 if (attack.firstFrame) {
                     attack.firstFrame = false;
                 }
-
-                if (this.attack.hitbox.show) {
-                    if (attack.attacking.hit) {
-                        this.context.fillStyle = "rgba(172, 175, 25, 0.7)";
-                    } else {
-                        this.context.fillStyle = "rgba(172, 175, 25, 0.2)";
-                    }
-                    this.context.fillRect(attack.x.current, attack.y.current, attack.width, attack.height);
+            }
+        }
+    }
+    drawHitbox() {
+        for (const key in this.attack.map) {
+            const attack = this.attack.map[key];
+            if (this.attack.hitbox.show && attack.attacking.bool) {
+                if (attack.attacking.hit) {
+                    this.context.fillStyle = "rgba(172, 175, 25, 0.7)";
+                } else {
+                    this.context.fillStyle = "rgba(172, 175, 25, 0.2)";
                 }
+                this.context.fillRect(attack.x.current, attack.y.current, attack.width, attack.height);
             }
         }
     }
