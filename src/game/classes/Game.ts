@@ -1,4 +1,5 @@
 import { Characters } from "../characters/types";
+import Camera from "./Camera";
 import Collisions from "./Collisions";
 import Hud from "./Hud";
 import GameMap from "./Map";
@@ -16,6 +17,7 @@ export default class Game {
     collisions: Collisions;
     hud: Hud;
     playerManager: PlayerManager;
+    camera: Camera;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, map: GameMap) {
         this.canvas = canvas;
         this.context = context;
@@ -29,16 +31,12 @@ export default class Game {
         this.gravity = 15;
         this.players = [];
         this.playerManager = new PlayerManager(this.canvas, this.context, this.players, this.gravity);
+        this.camera = new Camera(this.canvas, this.context, this.players);
     }
     draw() {
         this.frames.deltaTime = (this.frames.currentFrame - this.frames.lastFrame) / 100;
         this.frames.lastFrame = this.frames.currentFrame;
 
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.map.draw();
-
-        this.hud.displayHud(this.players);
         this.players.forEach((player) => {
             player.frames = this.frames;
             this.collisions.collisionPlayerObject(player, this.map.objects);
@@ -56,9 +54,25 @@ export default class Game {
                 this.collisions.collisionAttackPlayer(player, playerB);
             });
             player.physics();
+        });
+
+        this.camera.followAll();
+        this.camera.update();
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.map.background.draw();
+        this.camera.apply();
+
+        this.map.draw();
+        this.players.forEach((player) => {
             player.draw();
             player.animation.drawLoop();
         });
+
+        this.camera.unapply();
+
+        this.hud.displayHud(this.players);
 
         this.frames.animationFrame = window.requestAnimationFrame((currentFrame) => {
             this.frames.currentFrame = currentFrame;

@@ -14,7 +14,6 @@ export default class GameMap {
         this.background = new Background(this.canvas, this.context);
     }
     draw() {
-        this.background.draw();
         this.objects.forEach((object) => {
             object.draw();
         });
