@@ -9,6 +9,7 @@ export default class Camera {
     size: Size;
     players: Characters[];
     scale: number;
+    maxPosition: Position;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, players: Characters[]) {
         this.canvas = canvas;
         this.context = context;
@@ -16,6 +17,7 @@ export default class Camera {
 
         this.scale = 1;
         this.position = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+        this.maxPosition = { x: 560, y: 100 };
         this.size = { width: this.canvas.width, height: this.canvas.height };
         this.target = { position: { x: undefined, y: undefined }, size: { height: undefined, width: undefined } };
     }
@@ -35,12 +37,6 @@ export default class Camera {
 
         this.target.position.x = centerX;
         this.target.position.y = centerY;
-
-        // const farthestPlayer = this.players.slice().sort((a, b) => {
-        //     const distSqA = (a.position.x - centerX) ** 2 + (a.position.y - centerY) ** 2;
-        //     const distSqB = (b.position.x - centerX) ** 2 + (b.position.y - centerY) ** 2;
-        //     return distSqB - distSqA;
-        // });
     }
     update() {
         let targetX;
@@ -54,16 +50,16 @@ export default class Camera {
         if (targetX < 0) {
             targetX = 0;
         }
-        if (targetX > this.size.width) {
-            targetX = this.size.width;
+        if (targetX > this.maxPosition.x) {
+            targetX = this.maxPosition.x;
         }
 
         // Clamp vertical movement
         if (targetY < 0) {
             targetY = 0;
         }
-        if (targetY > this.size.height) {
-            targetY = this.size.height;
+        if (targetY > this.maxPosition.y) {
+            targetY = this.maxPosition.y;
         }
 
         this.position.x = targetX;

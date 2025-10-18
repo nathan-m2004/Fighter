@@ -32,6 +32,7 @@ export default class Game {
         this.players = [];
         this.playerManager = new PlayerManager(this.canvas, this.context, this.players, this.gravity);
         this.camera = new Camera(this.canvas, this.context, this.players);
+        this.camera.maxPosition = this.map.camera.maxPosition;
     }
     draw() {
         this.frames.deltaTime = (this.frames.currentFrame - this.frames.lastFrame) / 100;
