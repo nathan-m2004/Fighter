@@ -52,24 +52,16 @@ export default class Player {
     }
     draw() {
         this.context.fillStyle = this.animation.color;
-        //this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
+        this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
 
         this.animation.frames = this.frames;
-        //if (this.animation.image) {
-        //    this.context.drawImage(
-        //        this.animation.image,
-        //        this.position.x + 5,
-        //        this.position.y + 5,
-        //        this.size.height - 10,
-        //        this.size.width - 10
-        //    );
-        //}
 
         if (this.movement.dashing || !this.health.vulnerable) {
             this.context.fillStyle = "rgba(0, 255, 0, 0.5)";
             this.context.fillRect(this.position.x, this.position.y, this.size.width, this.size.height);
         }
-
+    }
+    drawDebugInfo() {
         if (this.debugInfo) {
             this.context.fillStyle = "white"; // Set a color for the text
             this.context.font = "16px Arial"; // Set the font and size
