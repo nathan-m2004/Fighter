@@ -33,6 +33,11 @@ export default class PlayerManager {
             this.players.push(newPlayer);
             this.keyboardPlayer = true;
         }
+        if (event.code === "KeyI") {
+            const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
+            this.players.push(newPlayer);
+            this.keyboardPlayer = true;
+        }
     }
     private connectPlayer(event: GamepadEvent) {
         const newPlayer = new Fighter(this.canvas, this.context, 500, 100, this.gravity);
