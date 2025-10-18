@@ -19,16 +19,6 @@ export default class Hud {
             this.context.fillText(`Morreu: (${player.health.timesKilled})`, 90, height * index + 10 * index + 40);
 
             this.context.fillText(`Vida: (${player.health.points})`, 90, height * index + 10 * index + 60);
-
-            if (player.animation.image) {
-                this.context.drawImage(
-                    player.animation.image,
-                    10 + 4,
-                    height * index + 10 * index + 10 + 4,
-                    width - 8,
-                    height - 8
-                );
-            }
         });
     }
 }
