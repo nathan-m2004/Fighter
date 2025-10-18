@@ -1,4 +1,5 @@
 import Game from "./classes/Game";
+import GameTest from "./classes/GameTest";
 import map01 from "./maps/map01";
 
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -13,7 +14,7 @@ window.onload = () => {
     }
     resizeCanvas();
 
-    game = new Game(canvas, context, map01(canvas, context));
+    game = new GameTest(canvas, context, map01(canvas, context));
     window.requestAnimationFrame((currentFrame) => {
         game.frames.currentFrame = currentFrame;
         game.draw();
