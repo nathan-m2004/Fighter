@@ -10,5 +10,7 @@ export default (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) =>
     const sideBlock2 = new MapObject(canvas, context, 1000, 150, 200, 50);
     sideBlock2.canGoInside = true;
     map.objects.push(sideBlock2);
+
+    map.camera.maxPosition = { x: 500, y: 200 };
     return map;
 };
