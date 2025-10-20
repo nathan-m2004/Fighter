@@ -5,6 +5,8 @@ import Menu from "./Menu";
 import testMenu from "./../menus/testMenu.html?raw";
 import Fighter from "../characters/Fighter/Fighter";
 
+type ClickedCoord = { screenX: number; screenY: number; worldX: number; worldY: number };
+
 export default class GameTest extends Game {
     menu: Menu;
     addPlayer: boolean;
@@ -24,33 +26,58 @@ export default class GameTest extends Game {
         this.menu.buttonHandle();
 
         window.addEventListener("click", (event) => {
-            this.playerSelect(event);
-            this.addPlayerEvent(event);
-            this.selectControlEvent(event);
+            // 1. Get click coordinates relative to the canvas (Screen Space)
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+
+            const screenX = (event.clientX - rect.left) * scaleX;
+            const screenY = (event.clientY - rect.top) * scaleY;
+
+            // 2. Convert to World Space
+            const worldX = screenX + this.camera.position.x;
+            const worldY = screenY + this.camera.position.y;
+
+            // 3. Create a coordinates object to pass to your functions
+            const clickCoords = {
+                screenX: screenX,
+                screenY: screenY,
+                worldX: worldX,
+                worldY: worldY,
+            };
+
+            this.playerSelect(event, clickCoords);
+            this.addPlayerEvent(event, clickCoords);
+            this.selectControlEvent(event, clickCoords);
         });
     }
 
-    isClickedPlayer(event: MouseEvent, player: Characters, index: number): boolean {
+    isClickedPlayer(event: MouseEvent, clickCoords: ClickedCoord, player: Characters, index: number): boolean {
         const width = player.size.width * 0.8;
         const height = player.size.height * 0.8;
         const yPosition = height * index + 10 * index + 10;
         const hudCheck =
             10 <= event.x && yPosition <= event.y && width + 10 >= event.x && yPosition + height >= event.y;
-        return hudCheck;
+        const playerPositionCheck =
+            player.position.x <= clickCoords.worldX &&
+            player.position.y <= clickCoords.worldY &&
+            player.position.x + player.size.width >= clickCoords.worldX &&
+            player.position.y + player.size.height >= clickCoords.worldY;
+        return hudCheck || playerPositionCheck;
     }
 
-    addPlayerEvent(event: MouseEvent) {
+    addPlayerEvent(event: MouseEvent, clickCoords: ClickedCoord) {
         if (!this.menu.button.addPlayer.bool) return;
-        const player = new Fighter(this.canvas, this.context, event.x, event.y, this.gravity);
+        const player = new Fighter(this.canvas, this.context, clickCoords.worldX, clickCoords.worldY, this.gravity);
         player.movement.dummy = true;
         this.players.push(player);
     }
 
-    selectControlEvent(event: MouseEvent) {
+    selectControlEvent(event: MouseEvent, clickCoords: ClickedCoord) {
         if (!this.menu.button.selectControl.bool) return;
         let selected: Characters = undefined;
         this.players.forEach((player: Characters, index: number) => {
-            if (this.isClickedPlayer(event, player, index)) {
+            if (this.isClickedPlayer(event, clickCoords, player, index)) {
                 player.movement.dummy ? (player.movement.dummy = false) : (player.movement.dummy = true);
                 selected = player;
             }
@@ -63,10 +90,10 @@ export default class GameTest extends Game {
         });
     }
 
-    playerSelect(event: MouseEvent) {
+    playerSelect(event: MouseEvent, clickCoords: ClickedCoord) {
         let selected: Characters = undefined;
         this.players.forEach((player: Characters, index: number) => {
-            if (this.isClickedPlayer(event, player, index)) {
+            if (this.isClickedPlayer(event, clickCoords, player, index)) {
                 player.debugInfo ? (player.debugInfo = false) : (player.debugInfo = true);
                 selected = player;
             }
