@@ -30,6 +30,15 @@ export default class GameTest extends Game {
         });
     }
 
+    isClickedPlayer(event: MouseEvent, player: Characters, index: number): boolean {
+        const width = player.size.width * 0.8;
+        const height = player.size.height * 0.8;
+        const yPosition = height * index + 10 * index + 10;
+        const hudCheck =
+            10 <= event.x && yPosition <= event.y && width + 10 >= event.x && yPosition + height >= event.y;
+        return hudCheck;
+    }
+
     addPlayerEvent(event: MouseEvent) {
         if (!this.menu.button.addPlayer.bool) return;
         const player = new Fighter(this.canvas, this.context, event.x, event.y, this.gravity);
@@ -41,10 +50,7 @@ export default class GameTest extends Game {
         if (!this.menu.button.selectControl.bool) return;
         let selected: Characters = undefined;
         this.players.forEach((player: Characters, index: number) => {
-            const width = player.size.width * 0.8;
-            const height = player.size.height * 0.8;
-            const yPosition = height * index + 10 * index + 10;
-            if (10 <= event.x && yPosition <= event.y && width + 10 >= event.x && yPosition + height >= event.y) {
+            if (this.isClickedPlayer(event, player, index)) {
                 player.movement.dummy ? (player.movement.dummy = false) : (player.movement.dummy = true);
                 selected = player;
             }
@@ -60,10 +66,7 @@ export default class GameTest extends Game {
     playerSelect(event: MouseEvent) {
         let selected: Characters = undefined;
         this.players.forEach((player: Characters, index: number) => {
-            const width = player.size.width * 0.8;
-            const height = player.size.height * 0.8;
-            const yPosition = height * index + 10 * index + 10;
-            if (10 <= event.x && yPosition <= event.y && width + 10 >= event.x && yPosition + height >= event.y) {
+            if (this.isClickedPlayer(event, player, index)) {
                 player.debugInfo ? (player.debugInfo = false) : (player.debugInfo = true);
                 selected = player;
             }
