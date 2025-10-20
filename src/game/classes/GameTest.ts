@@ -1,14 +1,36 @@
 import { Characters } from "../characters/types";
 import Game from "./Game";
 import GameMap from "./Map";
+import Menu from "./Menu";
+import testMenu from "./../menus/testMenu.html?raw";
+import Fighter from "../characters/Fighter/Fighter";
 
 export default class GameTest extends Game {
+    menu: Menu;
+    addPlayer: boolean;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, map: GameMap) {
         super(canvas, context, map);
 
+        this.menu = new Menu(testMenu);
+        this.menu.injectHtml();
+
+        this.addPlayer = false;
+
         window.addEventListener("click", (event) => {
             this.playerSelect(event);
+            this.addPlayerEvent(event);
         });
+        document.getElementById("add-player-btn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            this.addPlayer ? (this.addPlayer = false) : (this.addPlayer = true);
+        });
+    }
+
+    addPlayerEvent(event: MouseEvent) {
+        if (!this.addPlayer) return;
+        const player = new Fighter(this.canvas, this.context, event.x, event.y, this.gravity);
+        player.movement.dummy = true;
+        this.players.push(player);
     }
 
     playerSelect(event: MouseEvent) {

@@ -1,0 +1,24 @@
+<style>
+    .game-menu {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem; /* spacing between buttons */
+        padding: 1rem;
+        background-color: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(1px); /* Frosted glass effect */
+    }
+    .text {
+        color: white;
+    }
+</style>
+<div class="game-menu">
+    <p class="text">Test Controls</p>
+    <!-- Button to add a new player -->
+    <button id="add-player-btn" class="menu-button">Add Player</button>
+
+    <!-- Button to change the currently controlled player -->
+    <button id="change-player-btn" class="menu-button">Change Player</button>
+</div>
