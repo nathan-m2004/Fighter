@@ -8,29 +8,53 @@ import Fighter from "../characters/Fighter/Fighter";
 export default class GameTest extends Game {
     menu: Menu;
     addPlayer: boolean;
+    selectControl: boolean;
     constructor(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, map: GameMap) {
         super(canvas, context, map);
 
         this.menu = new Menu(testMenu);
         this.menu.injectHtml();
 
-        this.addPlayer = false;
+        const buttonMaps = {
+            addPlayer: { id: "add-player-btn", bool: false },
+            selectControl: { id: "change-player-btn", bool: false },
+        };
+
+        this.menu.button = buttonMaps;
+        this.menu.buttonHandle();
 
         window.addEventListener("click", (event) => {
             this.playerSelect(event);
             this.addPlayerEvent(event);
-        });
-        document.getElementById("add-player-btn").addEventListener("click", (event) => {
-            event.stopPropagation();
-            this.addPlayer ? (this.addPlayer = false) : (this.addPlayer = true);
+            this.selectControlEvent(event);
         });
     }
 
     addPlayerEvent(event: MouseEvent) {
-        if (!this.addPlayer) return;
+        if (!this.menu.button.addPlayer.bool) return;
         const player = new Fighter(this.canvas, this.context, event.x, event.y, this.gravity);
         player.movement.dummy = true;
         this.players.push(player);
+    }
+
+    selectControlEvent(event: MouseEvent) {
+        if (!this.menu.button.selectControl.bool) return;
+        let selected: Characters = undefined;
+        this.players.forEach((player: Characters, index: number) => {
+            const width = player.size.width * 0.8;
+            const height = player.size.height * 0.8;
+            const yPosition = height * index + 10 * index + 10;
+            if (10 <= event.x && yPosition <= event.y && width + 10 >= event.x && yPosition + height >= event.y) {
+                player.movement.dummy ? (player.movement.dummy = false) : (player.movement.dummy = true);
+                selected = player;
+            }
+        });
+
+        this.players.forEach((player) => {
+            if (player !== selected && selected !== undefined) {
+                player.movement.dummy = true;
+            }
+        });
     }
 
     playerSelect(event: MouseEvent) {
